@@ -62,6 +62,7 @@ Hệ thống có khả năng **ứng dụng thực tế** cho các cửa hàng k
 
 ```
 [doc](https://drive.google.com/drive/u/1/folders/1iKPoWJF3oBt0aGODDpWZR-0ZnGnrpjxx)
+https://lh3.googleusercontent.com/d/ (link ảnh )
 ```
 
 ###  Công nghệ khác
