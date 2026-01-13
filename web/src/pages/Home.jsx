@@ -16,16 +16,17 @@ const products = [
   { id: 11, gender: 'female', name: 'VÁY THỂ THAO', image: '/images/Vay_nu_3a1.5x.avif' },
   { id: 12, gender: 'female', name: 'PHỤ KIỆN', image: '/images/Phu_kien_31.5x.avif' },
 ];
-
 export default function Home() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log(user);
 
-  const user = JSON.parse(localStorage.getItem("user")); // Lấy object user
-  console.log(user)
   const images = [
+    "../../public/images/Screenshot_106.png",
     "https://n7media.coolmate.me/uploads/September2025/TW_Hero_Desktop.jpg",
-    "https://n7media.coolmate.me/uploads/October2025/banner_nam_nu.jpg",
     "https://n7media.coolmate.me/uploads/October2025/Hero-Banner-rpp.jpg",
+    
   ];
+
   const trackRef = useRef(null);
   const indexRef = useRef(0);
 
@@ -35,77 +36,95 @@ export default function Home() {
       if (!track) return;
 
       indexRef.current += 1;
-      track.style.transition = 'transform 1s ease-in-out';
+      track.style.transition = "transform 1s ease-in-out";
       track.style.transform = `translateX(-${indexRef.current * 100}%)`;
 
       if (indexRef.current === images.length) {
         setTimeout(() => {
-          track.style.transition = 'none'; 
-          track.style.transform = 'translateX(0%)';
+          track.style.transition = "none";
+          track.style.transform = "translateX(0%)";
           indexRef.current = 0;
-        }, 1000); 
+        }, 1000);
       }
     }, 4000);
 
     return () => clearInterval(interval);
   }, [images.length]);
 
+  const [gender, setGender] = useState("male");
+  const filtered = products.filter((p) => p.gender === gender);
 
-  const [gender, setGender] = useState('male');
-  const filtered = products.filter(p => p.gender === gender);
-
-  
   return (
     <>
-    <div className="carousel-container">
-      <div className="carousel-track" ref={trackRef}>
-        {images.concat(images[0]).map((img, i) => (
-          <div className="carousel-slide" key={i}>
-            <img src={img} alt={`slide-${i}`} />
+      {/* HERO SLIDER */}
+      <div className="carousel-container">
+        <div className="carousel-track" ref={trackRef}>
+          {images.concat(images[0]).map((img, i) => (
+            <div className="carousel-slide" key={i}>
+              <img src={img} alt={`slide-${i}`} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* BUTTON LỌC GIỚI TÍNH */}
+      <div className="gender-buttons">
+        <button
+          className={gender === "male" ? "active" : ""}
+          onClick={() => setGender("male")}
+        >
+          NAM
+        </button>
+        <button
+          className={gender === "female" ? "active" : ""}
+          onClick={() => setGender("female")}
+        >
+          NỮ
+        </button>
+      </div>
+
+      {/* DANH SÁCH SẢN PHẨM */}
+      <div className="product-list">
+        {filtered.map((item) => (
+          <div className="product-card" key={item.id}>
+            <div className="product-image-wrapper">
+              <img src={item.image} alt={item.name} />
+            </div>
+            <p>{item.name}</p>
           </div>
         ))}
       </div>
-    </div>
 
-    <div className="gender-buttons">
-        <button className={gender === 'male' ? 'active' : ''} onClick={() => setGender('male')}>NAM</button>
-        <button className={gender === 'female' ? 'active' : ''} onClick={() => setGender('female')}>NỮ</button>
-    </div>
-
-    <div className="product-list">
-      {filtered.map(item => (
-        <div className="product-card" key={item.id}>
-          <div className="product-image-wrapper">
-            <img src={item.image} alt={item.name} />
+      {/* BANNER SECTION */}
+      <div className="banner-section">
+        <div className="banner-card">
+          <div className="image-wrapper">
+            <img
+              src="/images/pro_nam_Frame_88042_(2)-min.avif"
+              alt="Men Wear"
+            />
           </div>
-            <p>{item.name}</p>
+          <div className="banner-content">
+            <h2>MEN WEAR</h2>
+            <p>Nhập BMT Giảm 50K đơn đầu tiên từ 299k</p>
+            <button>KHÁM PHÁ</button>
+          </div>
         </div>
-      ))}
-    </div>
 
-    <div className="banner-section">
-      <div className="banner-card">
-        <div className="image-wrapper">
-          <img src="/images/pro_nam_Frame_88042_(2)-min.avif" alt="Men Wear"/>
-        </div>
-        <div className="banner-content">
-          <h2>MEN WEAR</h2>
-          <p>Nhập COOLNEW Giảm 50K đơn đầu tiên từ 299k</p>
-          <button>KHÁM PHÁ</button>
+        <div className="banner-card">
+          <div className="image-wrapper">
+            <img
+              src="/images/pro_nu_Frame_88041_(2)-min.avif"
+              alt="Women Active"
+            />
+          </div>
+          <div className="banner-content">
+            <h2>WOMEN ACTIVE</h2>
+            <p>Nhập CMVSEAMLESS Giảm 50K cho BST Seamless</p>
+            <button>KHÁM PHÁ</button>
+          </div>
         </div>
       </div>
-
-      <div className="banner-card">
-        <div className="image-wrapper">
-          <img src="/images/pro_nu_Frame_88041_(2)-min.avif" alt="Women Active"/>
-        </div>
-        <div className="banner-content">
-          <h2>WOMEN ACTIVE</h2>
-          <p>Nhập CMVSEAMLESS Giảm 50K cho BST Seamless</p>
-          <button>KHÁM PHÁ</button>
-        </div>
-      </div>
-    </div>
     </>
   );
 }

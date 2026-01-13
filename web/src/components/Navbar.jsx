@@ -35,8 +35,8 @@ function Navbar() {
         <div className="navbar-left">
           <Link to="/">
             <img
-              src="https://www.coolmate.me/images/logo.png"
-              alt="Coolmate"
+              src="https://lh3.googleusercontent.com/d/175exCreBTZN2OGAYHYNiTqFwUNEyE5pF"
+              alt="BMT"
               className="logo"
             />
           </Link>
