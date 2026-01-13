@@ -83,7 +83,7 @@ function Navbar() {
       {/* Dòng chữ khuyến mãi */}
       <div className="sales">
         <div className="marquee-text">
-          NHẬP COOLNEW GIẢM 50K ĐƠN ĐẦU TIÊN TỪ 299K
+          NHẬP BMT GIẢM 50K ĐƠN ĐẦU TIÊN TỪ 299K
         </div>
       </div>
     </>
