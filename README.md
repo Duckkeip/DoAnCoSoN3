@@ -57,7 +57,12 @@ Hệ thống có khả năng **ứng dụng thực tế** cho các cửa hàng k
 - Postman  
 - MongoDB  
 - MongoDB Compass  
-- Git / GitHub  
+- Git / GitHub
+- Drive
+
+```
+doc
+```
 
 ###  Công nghệ khác
 - RESTful API  
