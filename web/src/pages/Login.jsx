@@ -24,9 +24,12 @@ function Login() {
       console.log("User lưu vào localStorage:", res.data.user);
       const user = res.data.user;
       console.log("Đăng nhập thành công:", user);
-       setTimeout(() => {
+      setTimeout(() => {
+        if (user.role === "admin") {
+          navigate(`/admin/${user.id}`); // hoặc /admin/home tùy bạn đặt route
+        } else {
         navigate(`/home/${user.id}`);
-         //chuyển hướng sau khi đăng ký thành công
+        }
       }, 1000); //chờ 1 giây trước khi chuyển hướng
       setMessage("✅ " + res.data.message);
     } catch (err) {

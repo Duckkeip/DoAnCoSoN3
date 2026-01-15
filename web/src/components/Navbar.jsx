@@ -6,84 +6,117 @@ import "./Navbar.css";
 function Navbar() {
   const navigate = useNavigate();
 
-  // ✅ Tránh lỗi JSON.parse khi user chưa tồn tại
+  // ✅ Lấy user và xử lý ID (Ưu tiên _id từ MongoDB)
   const user = JSON.parse(localStorage.getItem("user") || "null");
-  const userId = user ? user.id : "guest";
+  const userId = user ? (user._id || user.id) : "guest";
 
   const handleLogout = async () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (user) {
-    try {
-      await fetch(`http://localhost:5000/api/cart/${user.id}/clear`, {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.error("💥 Lỗi xoá giỏ hàng:", err);
+    if (user) {
+      try {
+        // Xóa giỏ hàng trên server nếu cần thiết khi logout
+        await fetch(`http://localhost:5000/api/cart/${userId}/clear`, {
+          method: "DELETE",
+        });
+      } catch (err) {
+        console.error("💥 Lỗi xoá giỏ hàng:", err);
+      }
     }
-  }
-  localStorage.removeItem("user");
-  navigate("/login");
-  
-};
-   
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   return (
     <>
       <div className="navbar">
-
-        {/* Logo bên trái */}
+        {/* Logo */}
         <div className="navbar-left">
           <Link to="/">
             <img
-              src="https://lh3.googleusercontent.com/d/175exCreBTZN2OGAYHYNiTqFwUNEyE5pF"
+              src="/images/logoBMT.png" // Đường dẫn chuẩn từ thư mục public
               alt="BMT"
               className="logo"
             />
           </Link>
         </div>
 
-        {/* Các link chính */}
-        <div className="navbar-links">
-          <Link to="/products">THỂ THAO</Link>
+        {/* Navigation Links */}
+        <div className="navbar-center">
+          <div className="navbar-links">
+            <Link to="/">TRANG CHỦ</Link>
+          </div>
+          
+          <div className="navbar-links has-dropdown">
+            <Link to="/products" className="main-link">SẢN PHẨM </Link>
+            
+            {/* MEGA MENU Đầy đủ */}
+            <div className="dropdown-menu">
+              <div className="dropdown-column">
+                <h4>CẦU LÔNG</h4>
+                <Link to="/products?category=vot-cau-long">Vợt Cầu Lông</Link>
+                <Link to="/products?category=giay-cau-long">Giày Cầu Lông</Link>
+                <Link to="/products?category=ao-quan-cau-long">Quần Áo Cầu Lông</Link>
+                <Link to="/products?category=phu-kien">Phụ Kiện</Link>
+              </div>
+              
+              <div className="dropdown-column">
+                <h4>QUẦN VỢT</h4>
+                <Link to="/products?category=vot-tennis">Vợt Tennis</Link>
+                <Link to="/products?category=giay-tennis">Giày Tennis</Link>
+                <Link to="/products?category=bong-tennis">Bóng Tennis</Link>
+                <Link to="/products?category=tui-tennis">Túi Vợt Tennis</Link>
+              </div>
+
+              <div className="dropdown-column">
+                <h4>THƯƠNG HIỆU</h4>
+                <Link to="/products?brand=yonex">Yonex</Link>
+                <Link to="/products?brand=victor">Victor</Link>
+                <Link to="/products?brand=lining">Lining</Link>
+                <Link to="/products?brand=asics">Asics</Link>
+              </div>
+            </div>
+          </div>
+          <div className="navbar-links">
+            <Link to="/">TIN TỨC</Link>
+          </div>
+          <div className="navbar-links">
+            <Link to="/">GIỚI THIỆU</Link>
+          </div>
+          <div className="navbar-links">
+            <Link to="/">LIÊN HỆ</Link>
+          </div>
         </div>
 
-        {/* Khu vực bên phải */}
+        {/* Right Section */}
         <div className="navbar-right">
-
-          {/* Search box */}
           <div className="search-box">
             <input type="text" placeholder="Tìm kiếm..." />
-            <FaSearch size={20} color="gray" className="search-icon" />
+            <FaSearch size={18} color="gray" className="search-icon" />
           </div>
 
-          {/* Nếu chưa đăng nhập */}
-          {!user && (
+          {!user ? (
             <Link to="/login" className="login-icon">
               <GoPersonFill size={25} />
             </Link>
-          )}
-
-          {/* Nếu đã đăng nhập */}
-          {user && (
+          ) : (
             <div className="user-info">
-              <span className="welcome-text">Xin chào, {user.username}</span>
-              <button className="logout-btn" onClick={handleLogout}>
+              <span className="welcome-text">Hi, {user.username}</span>
+              <button className="logout-navbar-btn" onClick={handleLogout}>
                 Đăng xuất
               </button>
             </div>
           )}
 
-          {/* Giỏ hàng */}
           <Link to={`/cart/${userId}`} className="cart-icon">
             <FaShoppingCart size={25} />
+            {/* Bạn có thể thêm badge số lượng sản phẩm ở đây */}
           </Link>
         </div>
       </div>
 
-      {/* Dòng chữ khuyến mãi */}
+      {/* Marquee Promotion */}
       <div className="sales">
         <div className="marquee-text">
-          NHẬP BMT GIẢM 50K ĐƠN ĐẦU TIÊN TỪ 299K
+          NHẬP BMT GIẢM 50K ĐƠN ĐẦU TIÊN TỪ 299K - GIAO HÀNG TOÀN QUỐC
         </div>
       </div>
     </>

@@ -59,6 +59,142 @@
 .search-bar button:hover {
   background-color: #e0e0e0;
 }
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 5%;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  height: 70px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo { height: 50px; }
+
+.navbar-center { 
+    display: flex;
+    align-items: center;
+    gap: 100px; 
+    flex-wrap: nowrap;
+  }
+  .navbar-links {
+    white-space: nowrap;   /* Đảm bảo chữ bên trong link không bị ngắt dòng */
+  }
+.navbar-links a {
+  text-decoration: none;
+  color: #333333;
+  font-weight: bold;
+  font-size: 20px;
+  transition: 0.3s;
+  
+}
+
+/* MEGA MENU LOGIC */
+.has-dropdown {
+  position: relative;
+  padding-bottom: 25px; /* Tạo vùng đệm để chuột không bị rời khỏi hover */
+  margin-bottom: -25px;
+}
+
+.dropdown-menu {
+  display: none; /* Mặc định ẩn */
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  min-width: 600px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 25px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 100px;
+  border-top: 3px solid #45ce1b;
+}
+
+/* Hiện menu khi hover */
+.has-dropdown:hover .dropdown-menu {
+  display: grid;
+}
+
+.dropdown-column h4 {
+  font-size: 15px;
+  margin-bottom: 15px;
+  color: #07ad47;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 5px;
+}
+
+.dropdown-column a {
+  display: block;
+  font-weight: normal;
+  font-size: 14px;
+  text-decoration:wavy;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  padding: 15px 0px ;
+  color: #080018;
+}
+
+.dropdown-column a:hover {
+  color: #ed1c24;
+  transform: translateX(5px);
+}
+
+/* Search & User */
+.navbar-right { display: flex; align-items: center; gap: 20px; }
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box input {
+  padding: 8px 35px 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+}
+
+.logout-navbar-btn {
+  background: #d81919;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 4px;
+  color: #ffffff;
+  white-space: nowrap; 
+  font-size: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sales Marquee */
+.sales {
+  background: #159635;
+  color: #fff;
+  overflow: hidden;
+  padding: 1px;
+}
+
+.marquee-text {
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
 .nav-links {
   display: flex;
   align-items: center;

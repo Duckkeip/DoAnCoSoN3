@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import '../App.css';
+import './Home.css';
 import React, { useState } from 'react';
 
 const products = [
@@ -10,7 +10,7 @@ const products = [
   { id: 5, gender: 'male', name: 'SƠ MI', image: '/images/so-mi_4.avif' },
   { id: 6, gender: 'male', name: 'ÁO THUN', image: '/images/ao-thun_63.avif' },
   { id: 7, gender: 'female', name: 'ÁO THỂ THAO', image: '/images/Ao_the_thao_31.5x.avif' },
-  { id: 8, gender: 'female', name: 'QUẦN THỂ THAO', image: '/images/Quan_the_thao_31.5x.avif' },
+  { id: 8, gender: 'female', name: 'VỢ t', image: '/images/Quan_the_thao_31.5x.avif' },
   { id: 9, gender: 'female', name: 'HOODIE & SWEATER', image: '/images/Hoodie__Sweater_31.5x.avif' },
   { id: 10, gender: 'female', name: 'BRA & LEGGINGS', image: '/images/Bra__Legging_31.5x.avif' },
   { id: 11, gender: 'female', name: 'VÁY THỂ THAO', image: '/images/Vay_nu_3a1.5x.avif' },
@@ -21,9 +21,9 @@ export default function Home() {
   console.log(user);
 
   const images = [
-    "../../public/images/Screenshot_106.png",
-    "https://n7media.coolmate.me/uploads/September2025/TW_Hero_Desktop.jpg",
-    "https://n7media.coolmate.me/uploads/October2025/Hero-Banner-rpp.jpg",
+    "../../public/images/giay.webp",
+    "../../public/images/vot.webp",
+    "../../public/images/bata.webp",
     
   ];
 
@@ -125,6 +125,53 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+
+      {/* FOOTER SECTION */}
+      <footer className="footer">
+        <div className="footer-container">
+          <div className="footer-column">
+            <h3>VỀ CHÚNG TÔI</h3>
+            <p>Thương hiệu thời trang thể thao hàng đầu, mang lại sự thoải mái và tự tin cho mọi hoạt động của bạn.</p>
+            <div className="social-icons">
+              <i className="fab fa-facebook"></i>
+              <i className="fab fa-instagram"></i>
+              <i className="fab fa-tiktok"></i>
+            </div>
+          </div>
+
+          <div className="footer-column">
+            <h3>CHÍNH SÁCH</h3>
+            <ul>
+              <li><a href="#">Chính sách đổi trả</a></li>
+              <li><a href="#">Chính sách bảo hành</a></li>
+              <li><a href="#">Chính sách vận chuyển</a></li>
+              <li><a href="#">Điều khoản dịch vụ</a></li>
+            </ul>
+          </div>
+
+          <div className="footer-column">
+            <h3>HỖ TRỢ KHÁCH HÀNG</h3>
+            <ul>
+              <li>Hotline: 1900 1234</li>
+              <li>Email:trungkienn2609@gmail.com</li>
+              <li>Địa chỉ: 8A/1 Cộng Hòa, Phường Tân Sơn Nhất, Thành phố Hồ Chí Minh</li>
+            </ul>
+          </div>
+
+          <div className="footer-column">
+            <h3>ĐĂNG KÝ NHẬN TIN</h3>
+            <div className="newsletter">
+              <input type="email" placeholder="Nhập email của bạn..." />
+              <button>GỬI</button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="footer-bottom">
+          <p>&copy; 2026 BMT Store. Tất cả quyền được bảo lưu.</p>
+        </div>
+      </footer>
     </>
   );
 }

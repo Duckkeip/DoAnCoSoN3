@@ -120,7 +120,8 @@ const addToCart = async (product) => {
           label="Danh mục"
           open={dropdownOpen.type}
           toggle={() => setDropdownOpen((p) => ({ ...p, type: !p.type }))}
-          options={["Áo Hoodie Nam", "Áo Khoác Gió", "Áo Phao Nam"]}
+          options={["Tất cả" ,"Vợt cầu lông ", "Giày cầu lông ","Áo cầu lông " ,"Váy cầu lông ","Quần cầu lông " ,"Phụ kiện cầu lông ",
+          "Túi vợt "]}
           active={filters.types}
           onSelect={(v) => handleSelect("types", v)}
         />
