@@ -76,4 +76,19 @@ Hệ thống có khả năng **ứng dụng thực tế** cho các cửa hàng k
 
 ---
 
+## CÁCH CHẠY CODE
+
+---
+file server/  chạy trên cmd ``` WINDOW + R nhập cmd ``` hay console của IDE (VScode cho dễ)
+khi chạy được cmd rồi thì cd đến thư mục server/ máy lưu về 
+chạy ```npm install ``` 
+rồi chạy ```npm run start ```
+
+file web/ tương tự 
+chạy ```npm install ``` 
+rồi chạy ```npm run dev ```
+
+
+---
+
 ✨ *Nhóm 03 – Đồ án Cơ sở Công nghệ Thông tin*
