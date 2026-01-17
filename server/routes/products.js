@@ -40,17 +40,18 @@ router.get("/:id", async (req, res) => {
   }
 });
 // GET /api/products/byType/:type
-router.get("/byType/:type", async (req, res) => {
+// Sửa tại file router của Backend
+router.get("/byType/:type", async (req, res) => { // Giữ tên route là byType cũng được
   try {
     const database = await db();
-   
     const { type } = req.params;
-    const products = await database.collection(`products`) // giới hạn 10 sản phẩm
-    const result = await products.find({ type }).limit(10).toArray(); // ← chuyển cursor thành mảng
+    const products = await database.collection("products");
+    
+    // SỬA Ở ĐÂY: Tìm theo trường 'category' thay vì 'type'
+    const result = await products.find({ category: type }).limit(10).toArray(); 
+    
     res.json({ success: true, products: result });
   } catch (err) {
-    res.status(500).json({ error: err.message });
-    console.error(err);
     res.status(500).json({ success: false, message: "Lỗi server" });
   }
 });

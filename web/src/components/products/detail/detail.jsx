@@ -26,7 +26,6 @@ class Detail extends React.Component {
 
   componentDidMount() {
     this.getDetailProduct(this.props.id);
-    this.loadCartCount();
   }
 
   componentDidUpdate(prevProps) {
@@ -34,38 +33,41 @@ class Detail extends React.Component {
       this.getDetailProduct(this.props.id);
     }
   }
+getDetailProduct = (id) => {
+  fetch(`http://localhost:5000/api/products/${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      const product = data.product;
+      if (!product) return;
 
-  getDetailProduct = (id) => {
-    fetch(`http://localhost:5000/api/products/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        // fix: dùng data.product nếu API trả về object 'product'
-        const product = data.product || data.products; 
-        if (!product) return; // tránh lỗi nếu null
-  
-        const imagesArray = product.images?.length
-          ? product.images
-          : product.image
-          ? [product.image]
-          : [];
-  
-        this.setState({
-          product_data: { ...product, images: imagesArray },
-          selectedImage: imagesArray[0] || "",
-          quantity: 1,
-        });
-  
-        this.getRelatedProducts(product.type);
-      })
-      .catch((err) => console.error(err));
-  };
-  getRelatedProducts = (type) => {
-    if (!type) return;
-    fetch(`http://localhost:5000/api/products/byType/${type}`)
-      .then((res) => res.json())
-      .then((data) => this.setState({ relatedProducts: data.products || [] }))
-      .catch((err) => console.error(err));
-  };
+      // 1. Lấy mảng hình ảnh (nếu hinhAnh rỗng thì dùng tạm anhDaiDien)
+      const imagesArray = product.hinhAnh && product.hinhAnh.length > 0 
+        ? product.hinhAnh 
+        : [product.anhDaiDien];
+
+      this.setState({
+        product_data: product,
+        images: imagesArray,
+        selectedImage: product.anhDaiDien, // Dùng trường anhDaiDien làm ảnh mặc định
+        quantity: 1,
+      });
+
+      // 2. Gọi sản phẩm liên quan (Dùng trường 'category' cho khớp với Document của bạn)
+      this.getRelatedProducts(product.category); 
+    })
+    .catch((err) => console.error("Lỗi fetch chi tiết:", err));
+};
+
+
+      getRelatedProducts = (type) => {
+        if (!type) return;
+         fetch(`http://localhost:5000/api/products/byType/${type}`)
+          .then((res) => res.json())
+          .then((data) => {
+             this.setState({ relatedProducts: data.products || [] });
+          })
+          .catch((err) => console.error(err));
+      };
 
   onChangeTabChange = (tab) => this.setState({ activeTab: tab });
   onChangeImageSelect = (img) => this.setState({ selectedImage: img });
@@ -76,28 +78,16 @@ class Detail extends React.Component {
 
   onClickBuyNow = () => alert(`Đặt mua ${this.state.quantity} sản phẩm thành công!`);
 
-  loadCartCount = async () => {
-    const { user_id } = this.props;
-    try {
-      const res = await fetch(`http://localhost:5000/api/cart/${user_id}`);
-      const data = await res.json();
-      if (data.cart) {
-        const total = data.cart.items.reduce((sum, item) => sum + item.quantity, 0);
-        this.setState({ cartCount: total });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   onClickAddToCart = async () => {
     const { user_id } = this.props;
-    const { product_data, quantity, cartCount } = this.state;
+    const { product_data, quantity, selectedImage } = this.state;
+    
+    // Đồng bộ object product gửi lên giỏ hàng
     const product = {
       product_id: product_data._id,
-      name: product_data.name,
-      price: product_data.price,
-      image: product_data.image,
+      name: product_data.tenSanPham,
+      price: product_data.gia,
+      image: selectedImage, // Lưu ảnh đang được chọn làm ảnh đại diện trong giỏ
       quantity: quantity,
     };
 
@@ -108,9 +98,8 @@ class Detail extends React.Component {
         body: JSON.stringify({ user_id, product }),
       });
       const data = await res.json();
-      if (data.message) {
-        alert(data.message);
-        this.setState({ cartCount: cartCount + quantity });
+      if (res.ok) {
+        alert(data.message || "Đã thêm vào giỏ hàng!");
       }
     } catch (err) {
       console.error(err);
@@ -121,99 +110,115 @@ class Detail extends React.Component {
   onClickSelectedId = (id) => (window.location.href = `/detail/${id}`);
 
   render() {
-    const { product_data, selectedImage, quantity, activeTab, relatedProducts } = this.state;
+    const { product_data, selectedImage,  quantity, activeTab, relatedProducts } = this.state;
+
+    if (!product_data.tenSanPham) return <div className="container mt-5">Đang tải...</div>;
 
     return (
-      <div className="product-detail-container">
-        <h3>{product_data.name}</h3>
+      <div className="product-detail-container container mt-4">
+        <h3 className="mb-4">{product_data.tenSanPham}</h3>
 
         <div className="row">
           <div className="col-md-6">
-            <img
-              src={selectedImage}
-              alt={product_data.name}
-              className="img-fluid rounded mb-3"
-              style={{ maxHeight: "240px", objectFit: "contain" }}
-            />
-            <div className="thumbnail-list">
-              {product_data.images?.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`thumb-${idx}`}
-                  className={`img-thumbnail ${selectedImage === img ? "border-primary" : ""}`}
-                  style={{ width: "80px", height: "80px", cursor: "pointer", objectFit: "contain" }}
-                  onClick={() => this.onChangeImageSelect(img)}
-                />
-              ))}
+            <div className="main-image-container border rounded p-2 mb-3 bg-white">
+              <img
+                src={selectedImage}
+                alt={product_data.tenSanPham}
+                className="img-fluid"
+                style={{ width: "100%", height: "400px", objectFit: "contain" }}
+                onError={(e) => { e.target.src = "/no-image.png"; }}
+              />
             </div>
           </div>
 
           <div className="col-md-6">
-            <p>{product_data.description}</p>
-            <div className="d-flex align-items-center mb-3">
-              <label className="me-2 fw-semibold">Số lượng:</label>
-              <input
-                type="number"
-                className="form-control quantity-input"
-                value={quantity}
-                min="1"
-                style={{ width: "80px" }}
-                onChange={this.onChangeQuantity}
-              />
+            <p className="text-muted">Thương hiệu: <strong>{product_data.tenThuongHieu}</strong></p>
+            <div className="price-box mb-3">
+               <h4 className="fw-bold text-danger">
+                {product_data.gia ? `${product_data.gia.toLocaleString("vi-VN")}₫` : "Liên hệ"}
+              </h4>
             </div>
-            <h4 className="fw-bold text-success mb-4">
-              {product_data.price ? `${product_data.price.toLocaleString("vi-VN")}₫` : "0₫"}
-            </h4>
+            
+            <div className="mb-4">
+               <p><strong>Tình trạng:</strong> {product_data.soLuong > 0 ? `Còn hàng (${product_data.soLuong})` : "Hết hàng"}</p>
+               <p className="product-short-desc">{product_data.moTa}</p>
+            </div>
 
-            <div className="d-flex gap-2">
-              <button className="btn btn-outline-primary" onClick={this.onClickBuyNow}>
-                Mua ngay
-              </button>
-              <button className="btn btn-primary" onClick={this.onClickAddToCart}>
-                🛒 Thêm vào giỏ
-              </button>
+            <div className="d-flex align-items-center mb-4 gap-3">
+              <div className="quantity-group d-flex align-items-center border rounded">
+                <button className="btn btn-light" onClick={() => this.onChangeQuantity({target: {value: quantity - 1}})}>-</button>
+                <input
+                  type="number"
+                  className="form-control border-0 text-center"
+                  value={quantity}
+                  min="1"
+                  style={{ width: "60px" }}
+                  onChange={this.onChangeQuantity}
+                />
+                <button className="btn btn-light" onClick={() => this.onChangeQuantity({target: {value: quantity + 1}})}>+</button>
+              </div>
+              
+              <div className="d-flex gap-2 w-100">
+                <button className="btn btn-outline-danger flex-grow-1 py-2" onClick={this.onClickBuyNow}>
+                  MUA NGAY
+                </button>
+                <button className="btn btn-danger flex-grow-1 py-2" onClick={this.onClickAddToCart}>
+                  THÊM VÀO GIỎ
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Tabs Chi tiết */}
         <ul className="nav nav-tabs mt-5">
           <li className="nav-item">
-            <button className={`nav-link ${activeTab === "description" ? "active" : ""}`} onClick={() => this.onChangeTabChange("description")}>Mô tả</button>
-          </li>
-          <li className="nav-item">
-            <button className={`nav-link ${activeTab === "review" ? "active" : ""}`} onClick={() => this.onChangeTabChange("review")}>Đánh giá (0)</button>
+            <button className={`nav-link ${activeTab === "description" ? "active" : ""}`} onClick={() => this.onChangeTabChange("description")}>Mô tả sản phẩm</button>
           </li>
           <li className="nav-item">
             <button className={`nav-link ${activeTab === "related" ? "active" : ""}`} onClick={() => this.onChangeTabChange("related")}>Sản phẩm liên quan</button>
           </li>
         </ul>
 
-        <div className="border border-top-0 p-3">
+        <div className="border border-top-0 p-4 bg-white mb-5">
           {activeTab === "description" && (
-            <div>
-              <h5>Tổng quan</h5>
-              <p>{product_data.description}</p>
-              <p><strong>Thương hiệu:</strong> {product_data.brand}</p>
+            <div className="description-content">
+              <h5>Thông tin chi tiết</h5>
+              <p>{product_data.moTa}</p>
+              <table className="table table-bordered mt-3" style={{maxWidth: "400px"}}>
+                <tbody>
+                  <tr>
+                    <td className="bg-light w-50">Thương hiệu</td>
+                    <td>{product_data.tenThuongHieu}</td>
+                  </tr>
+                  <tr>
+                    <td className="bg-light">Danh mục</td>
+                    <td>{product_data.tenDanhMuc}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
 
-          {activeTab === "review" && <p>Chưa có đánh giá nào.</p>}
-
           {activeTab === "related" && (
             <div className="row related-products">
-              {relatedProducts.length === 0 && <p>Không có sản phẩm liên quan.</p>}
+              {relatedProducts.length === 0 && <p>Đang cập nhật sản phẩm liên quan...</p>}
               {relatedProducts.map((item) => (
-                <div key={item._id} className="col-md-3 mb-3">
-                  <div className="card h-100" onClick={() => this.onClickSelectedId(item._id)} style={{ cursor: "pointer" }}>
-                    <img src={item.image} alt={item.name} className="card-img-top" style={{ height: "120px", objectFit: "contain" }} />
-                    <div className="card-body text-center">
-                      <h6>{item.name}</h6>
-                      <p className="text-success fw-bold">{item.price.toLocaleString("vi-VN")}₫</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          <div key={item._id} className="col-md-3 mb-3">
+            <div className="card h-100" onClick={() => this.onClickSelectedId(item._id)}>
+              <img 
+                src={item.anhDaiDien} // Lấy trực tiếp trường anhDaiDien bên ngoài
+                alt={item.tenSanPham} 
+                className="card-img-top p-2" 
+                style={{ height: "180px", objectFit: "contain" }} 
+              />
+              <div className="card-body text-center">
+                <h6>{item.tenSanPham}</h6>
+                <p className="text-danger fw-bold">{item.gia?.toLocaleString("vi-VN")}₫</p>
+              </div>
+            </div>
+          </div>
+        ))}
             </div>
           )}
         </div>

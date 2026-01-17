@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./Cart.css";
@@ -10,7 +9,7 @@ function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [orderStatus, setOrderStatus] = useState(null); // lưu phản hồi từ server
+  const [orderStatus, setOrderStatus] = useState(null);
 
   useEffect(() => {
     if (!user_id) return;
@@ -21,133 +20,125 @@ function Cart() {
     try {
       const res = await fetch(`http://localhost:5000/api/cart/${user_id}`);
       const data = await res.json();
-  
+
       if (data.cart && data.cart.chitietgiohang) {
-  
         setCartItems(data.cart.chitietgiohang);
-  
         const sum = data.cart.chitietgiohang.reduce(
           (acc, item) => acc + item.quantity * item.price,
           0
         );
-  
         setTotal(sum);
       }
     } catch (err) {
       console.error("💥 Lỗi lấy giỏ hàng:", err);
     }
   };
-  
-// Giảm số lượng 1 sản phẩm
-const handleDecrease = async (productId, currentQuantity, name) => {
-  try {
-    const newQuantity = currentQuantity - 1;
-    if (newQuantity < 1) return; // không giảm dưới 1
 
-    const res = await fetch(`http://localhost:5000/api/cart/update`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user: user_id, productId, quantity: newQuantity }),
-    });
-    
-    const data = await res.json();
-    
-    if (data.success) {
-      fetchCart();
-      window.alert(`Đã giảm 1 ${name}`);
+  const handleDecrease = async (productId, currentQuantity, name) => {
+    try {
+      const newQuantity = currentQuantity - 1;
+      if (newQuantity < 1) return;
+
+      const res = await fetch(`http://localhost:5000/api/cart/update`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: user_id, productId, quantity: newQuantity }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        fetchCart();
+        window.alert(`Đã giảm số lượng ${name}`);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
-// Tăng số lượng 1 sản phẩm
-const handleIncrease = async (productId, currentQuantity, name) => {
-  try {
-    const res = await fetch(`http://localhost:5000/api/cart/update`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user: user_id, productId, quantity: currentQuantity + 1 }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      fetchCart();
-      window.alert(`Đã tăng 1 ${name} `);
+  const handleIncrease = async (productId, currentQuantity, name) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/cart/update`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: user_id, productId, quantity: currentQuantity + 1 }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchCart();
+        window.alert(`Đã tăng số lượng ${name}`);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
-// Xoá hoàn toàn sản phẩm
-const handleRemoveAll = async (productId, name) => {
-  try {
-    const res = await fetch(`http://localhost:5000/api/cart/remove`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user: user_id, productId }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      fetchCart();
-      window.alert(`Đã xoá ${name} khỏi giỏ`);
+  const handleRemoveAll = async (productId, name) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/cart/remove`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: user_id, productId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchCart();
+        window.alert(`Đã xoá ${name} khỏi giỏ`);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
+  const handleClearCart = async () => {
+    if (!user_id) return;
+    const confirm = window.confirm("Bạn có chắc muốn xoá toàn bộ giỏ hàng không?");
+    if (!confirm) return;
 
-// Thêm hàm xoá toàn bộ giỏ hàng
-const handleClearCart = async () => {
-  if (!user_id) return;
-  const confirm = window.confirm("Bạn có chắc muốn xoá toàn bộ giỏ hàng không?");
-  if (!confirm) return;
-
-  try {
-    const res = await fetch(`http://localhost:5000/api/cart/${user_id}/clear`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await res.json();
-    if (data.success) {
-      setCartItems([]);
-      setTotal(0);
-      window.alert("Đã xoá toàn bộ giỏ hàng!");
+    try {
+      const res = await fetch(`http://localhost:5000/api/cart/${user_id}/clear`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCartItems([]);
+        setTotal(0);
+        window.alert("Đã xoá toàn bộ giỏ hàng!");
+      }
+    } catch (err) {
+      console.error("💥 Lỗi xoá toàn bộ giỏ hàng:", err);
     }
-  } catch (err) {
-    console.error("💥 Lỗi xoá toàn bộ giỏ hàng:", err);
-  }
-};
+  };
 
-const handlePlaceOrder = async () => {
-  try {
-    const resOrder = await fetch(`http://localhost:5000/api/pay/create`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user: user_id,
-        chitietdonhang: cartItems,
-        tongtien: total,
-        thanhtoan: false, 
-        status: "dangcho",
-        address: "",
-      }),
-    });
+  const handlePlaceOrder = async () => {
+    try {
+      const resOrder = await fetch(`http://localhost:5000/api/pay/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: user_id,
+          chitietdonhang: cartItems,
+          tongtien: total,
+          thanhtoan: false,
+          status: "dangcho",
+          address: "",
+        }),
+      });
 
-    const data = await resOrder.json();
-    if (!data.success) return window.alert("💥 Lỗi tạo đơn hàng");
+      const data = await resOrder.json();
+      if (!data.success) return window.alert("💥 Lỗi tạo đơn hàng");
 
-    setOrderStatus(data.order); // lưu order vừa tạo
-    setShowModal(true);         // bật modal hóa đơn
-  } catch (err) {
-    console.error("💥 Lỗi đặt hàng:", err);
-  }
-};
+      setOrderStatus(data.order);
+      setShowModal(true);
+    } catch (err) {
+      console.error("💥 Lỗi đặt hàng:", err);
+    }
+  };
+
   return (
     <div className="cart-container">
       <h3>Giỏ hàng của bạn</h3>
-      
+
       {cartItems.length === 0 ? (
         <p>Giỏ hàng trống.</p>
       ) : (
@@ -160,65 +151,60 @@ const handlePlaceOrder = async () => {
                 <th>Giá</th>
                 <th>Số lượng</th>
                 <th>Tổng</th>
-                <th></th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
-            {cartItems.map((item) => (
-              <tr key={item.productId}>
-                <td>
-                  <img src={item.image} alt={item.name} className="cart-img" />
-                </td>
-                <td>{item.name}</td>
-                <td>{item.price ? item.price.toLocaleString("vi-VN") : "0"}₫</td>
-                <td>{item.quantity}</td>
-                <td>
-                  {item.price
-                    ? (item.quantity * item.price).toLocaleString("vi-VN")
-                    : "0"}₫
-                </td>
-                <td>
-                  <button onClick={() => handleIncrease(item.productId, item.quantity, item.name)}>
-                    +
-                  </button>
-                  <button onClick={() => handleDecrease(item.productId, item.quantity, item.name)}>
-                    -
-                  </button>
-                  <button onClick={() => handleRemoveAll(item.productId, item.name )}>X</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-
+              {cartItems.map((item) => (
+                <tr key={item.productId}>
+                  <td>
+                    {/* Sửa lại cách hiển thị ảnh: 
+                        Nếu item.image là mảng, lấy [0].anhDaiDien 
+                        Nếu item.image là string, dùng trực tiếp */}
+                    <img 
+                      src={Array.isArray(item.image) ? item.image[0]?.anhDaiDien : item.image || "/no-image.png"} 
+                      alt={item.name} 
+                      className="cart-img" 
+                    />
+                  </td>
+                  <td>{item.name}</td>
+                  <td>{item.price ? item.price.toLocaleString("vi-VN") : "0"}₫</td>
+                  <td className="quantity-controls">
+                    <button onClick={() => handleDecrease(item.productId, item.quantity, item.name)}>-</button>
+                    <span>{item.quantity}</span>
+                    <button onClick={() => handleIncrease(item.productId, item.quantity, item.name)}>+</button>
+                  </td>
+                  <td>
+                    {(item.quantity * item.price).toLocaleString("vi-VN")}₫
+                  </td>
+                  <td>
+                    <button className="remove-btn" onClick={() => handleRemoveAll(item.productId, item.name)}>Xóa</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
-          <h4>Tổng tiền: {total.toLocaleString("vi-VN")}₫</h4>
-
-           {cartItems.length > 0 && (
-        <>
-          <section className="cart-actions">
           
-           <button className="clear-cart-btn" onClick={handleClearCart}>
-          Xoá toàn bộ giỏ hàng
-        </button>
-        </section>
-        <section>
-        <button className="place-order-btn" onClick={handlePlaceOrder}>
-            Đặt hàng
-          </button>
-        </section>
+          <div className="cart-summary">
+            <h4>Tổng cộng: <span className="total-price">{total.toLocaleString("vi-VN")}₫</span></h4>
+            <div className="cart-actions">
+              <button className="clear-cart-btn" onClick={handleClearCart}>Xoá giỏ hàng</button>
+              <button className="place-order-btn" onClick={handlePlaceOrder}>Đặt hàng ngay</button>
+            </div>
+          </div>
         </>
       )}
-      
-        </>
-      )}
-    {/* Modal hiển thị hóa đơn */}
-     {showModal && orderStatus && (
+
+      {/* Modal Hóa đơn */}
+      {showModal && orderStatus && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Hóa đơn của bạn</h3>
-            <p>Order ID: {orderStatus._id}</p>
-            <p>Tổng tiền: {orderStatus.tongtien.toLocaleString("vi-VN")}₫</p>
-            <p>Trạng thái: {orderStatus.status}</p>
+            <div className="order-info">
+              <p><strong>Mã đơn hàng:</strong> {orderStatus._id}</p>
+              <p><strong>Tổng tiền:</strong> {orderStatus.tongtien.toLocaleString("vi-VN")}₫</p>
+              <p><strong>Trạng thái:</strong> {orderStatus.status}</p>
+            </div>
 
             <table className="cart-table">
               <thead>
@@ -241,10 +227,8 @@ const handlePlaceOrder = async () => {
               </tbody>
             </table>
 
-            {/* Hành động trong modal */}
             <div className="modal-actions">
-              {/* Hủy đơn */}
-              <button onClick={async () => {
+              <button className="btn-cancel" onClick={async () => {
                 await fetch(`http://localhost:5000/api/pay/${orderStatus._id}/cancel`, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
@@ -252,8 +236,7 @@ const handlePlaceOrder = async () => {
                 setShowModal(false);
               }}>Hủy đơn</button>
 
-              {/* Thanh toán */}
-              <button onClick={async () => {
+              <button className="btn-pay" onClick={async () => {
                   try {
                     const orderData = { 
                       amount: orderStatus.tongtien, 
@@ -271,17 +254,16 @@ const handlePlaceOrder = async () => {
 
                     const result = await res.json();
                     if (result.success && result.url) {
-                      window.open(result.url, "_blank"); // mở tab mới thanh toán
+                      window.location.href = result.url; // Chuyển hướng trực tiếp để thanh toán
                     } else {
-                      window.alert("💥 Lỗi tạo URL thanh toán VNPAY");
+                      window.alert("💥 Lỗi tạo URL thanh toán");
                     }
                   } catch (err) {
                     console.error("💥 Lỗi thanh toán:", err);
                   }
                 }}>
-                  Thanh toán
+                  Thanh toán VNPAY
                 </button>
-
             </div>
           </div>
         </div>

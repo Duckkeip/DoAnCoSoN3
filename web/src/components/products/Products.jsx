@@ -162,25 +162,25 @@ function Products() {
         {filteredProducts.length > 0 ? (
           filteredProducts.map((p) => (
             <div className="p-product-card" key={p._id}>
-              {/* Sử dụng hinhAnh.anhDaiDien */}
+              {/* Truy cập phần tử đầu tiên của mảng hinhAnh để lấy anhDaiDien */}
               <img 
-              src={
-                p.hinhAnh?.anhDaiDien || "/images/default-product.jpg"
-              } 
-              alt={p.tenSanPham} 
-              style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-            />
+                // Lấy phần tử đầu tiên của mảng hinhAnh, sau đó truy cập anhDaiDien
+                src={p.anhDaiDien} 
+                alt={p.tenSanPham} 
+                className="p-product-image"
+              />
+              
               <div className="p-product-name">{p.tenSanPham}</div>
               <div className="p-product-info">{p.tenThuongHieu}</div>
+              
               <div className="p-product-info text-success">
                 {p.gia ? p.gia.toLocaleString("vi-VN") : 0} ₫
               </div>
-              <div className="p-product-info">Kho: {p.soLuong}</div>
-              
+
               <button className="btn-cart" onClick={() => addToCart(p)}>
                 <i className="bi bi-cart"></i> Thêm vào giỏ 
               </button>
-              
+
               <Link
                 to={`/detail/${p._id}`}
                 state={{ user_id: userId }}
