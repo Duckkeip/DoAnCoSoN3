@@ -1,7 +1,7 @@
 /* ===== CAROUSEL HERO ===== */
 .carousel-container {
   width: 100%;
-  height: 520px; /* chiêu cao cố định */
+  height: 720px; /* chiêu cao cố định */
   overflow: hidden;
   position: relative;
 }

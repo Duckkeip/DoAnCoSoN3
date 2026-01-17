@@ -56,7 +56,7 @@ export default function Home() {
 
   return (
     <>
-      {/* HERO SLIDER */}
+      {/*  SLIDER */}
       <div className="carousel-container">
         <div className="carousel-track" ref={trackRef}>
           {images.concat(images[0]).map((img, i) => (
@@ -73,13 +73,37 @@ export default function Home() {
           className={gender === "male" ? "active" : ""}
           onClick={() => setGender("male")}
         >
-          NAM
+          VỢT
         </button>
         <button
           className={gender === "female" ? "active" : ""}
           onClick={() => setGender("female")}
         >
-          NỮ
+          GIÀY
+        </button>
+        <button
+          className={gender === "female" ? "active" : ""}
+          onClick={() => setGender("female")}
+        >
+          ÁO
+        </button>
+        <button
+          className={gender === "female" ? "active" : ""}
+          onClick={() => setGender("female")}
+        >
+          QUẦN
+        </button>
+        <button
+          className={gender === "female" ? "active" : ""}
+          onClick={() => setGender("female")}
+        >
+          TÚI VỢT
+        </button>
+        <button
+          className={gender === "female" ? "active" : ""}
+          onClick={() => setGender("female")}
+        >
+          PHỤ KIỆN
         </button>
       </div>
 

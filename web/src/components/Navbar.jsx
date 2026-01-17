@@ -54,16 +54,20 @@ function Navbar() {
                 <h4>CẦU LÔNG</h4>
                 <Link to="/products?category=vot-cau-long">Vợt Cầu Lông</Link>
                 <Link to="/products?category=giay-cau-long">Giày Cầu Lông</Link>
-                <Link to="/products?category=ao-quan-cau-long">Quần Áo Cầu Lông</Link>
-                <Link to="/products?category=phu-kien">Phụ Kiện</Link>
+                <Link to="/products?category=ao-cau-long"> Áo cầu Lông</Link>
+                <Link to="/products?category=quan-cau-long">Quần cầu Lông</Link>
+                <Link to="/products?category=tui-cau-long">Túi Vợt Cầu Lông</Link>
+                <Link to="/products?category=phu-kien-cau-long">Phụ Kiện Cầu Lông</Link>
               </div>
               
               <div className="dropdown-column">
                 <h4>QUẦN VỢT</h4>
                 <Link to="/products?category=vot-tennis">Vợt Tennis</Link>
                 <Link to="/products?category=giay-tennis">Giày Tennis</Link>
-                <Link to="/products?category=bong-tennis">Bóng Tennis</Link>
+                <Link to="/products?category=ao-tennis"> Áo Tennis</Link>
+                <Link to="/products?category=quan-tennis">Quần Tennis</Link>
                 <Link to="/products?category=tui-tennis">Túi Vợt Tennis</Link>
+                <Link to="/products?category=phu-kien-tennis">Phụ Kiện Tennis</Link>
               </div>
 
               <div className="dropdown-column">

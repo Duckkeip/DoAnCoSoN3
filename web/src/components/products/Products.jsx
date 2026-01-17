@@ -18,19 +18,20 @@ function Products() {
 
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({
-    types: "",
+    category: "", // Đổi từ types -> category
     colors: "",
     sizes: "",
     priceRange: null,
     rating: 0,
-    gender: ""
+    brand: "" // Thêm brand nếu cần
   });
+  
   const [dropdownOpen, setDropdownOpen] = useState({
-    type: false,
+    category: false,
     color: false,
     size: false,
     price: false,
-    gender: false
+    brand: false
   });
 
   // Lấy dữ liệu sản phẩm từ API
@@ -38,6 +39,7 @@ function Products() {
     fetch("http://localhost:5000/api/products/sanpham")
       .then(res => res.json())
       .then((data) => {
+        // Giả sử data.products chứa mảng các object như mẫu bạn đưa ra
         setProducts(data.products || []);
       })
       .catch((err) => console.log("Lỗi fetch sản phẩm:", err));
@@ -57,58 +59,51 @@ function Products() {
     }));
   };
 
-  const handleRatingFilter = () => {
-    setFilters((prev) => ({
-      ...prev,
-      rating: prev.rating === 5 ? 0 : 5
-    }));
-  };
-  // 🛒 Hàm thêm vào giỏ hàng
-const addToCart = async (product) => {
-  const item = {
-    product_id: product._id,
-    name: product.name,
-    price: product.price,
-    image: product.image,
-    quantity: 1
-  };
+  
+ // 🛒 Hàm thêm vào giỏ hàng (Cập nhật key cho khớp document mới)
+  const addToCart = async (product) => {
+    const item = {
+      product_id: product._id,
+      name: product.tenSanPham, // Cập nhật từ product.name
+      price: product.gia,       // Cập nhật từ product.price
+      image: product.hinhAnh?.anhDaiDien, // Cập nhật từ product.image
+      quantity: 1
+    };
 
-  try {
-    const res = await fetch("http://localhost:5000/api/cart/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId, product: item }),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/api/cart/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, product: item }),
+      });
 
-    const data = await res.json();
-
-    if (data.message) {
-      alert(data.message);
-    } else {
-      alert("Đã thêm vào giỏ hàng!");
+      const data = await res.json();
+      if (res.ok) {
+        alert("Đã thêm vào giỏ hàng!");
+      } else {
+        alert(data.message || "Lỗi khi thêm");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("💥 Lỗi khi thêm vào giỏ hàng");
     }
-  } catch (err) {
-    console.error(err);
-    alert("💥 Lỗi khi thêm vào giỏ hàng");
-  }
-};
+  };
   // Lọc sản phẩm dựa trên filters
+  // Lọc sản phẩm dựa trên các thuộc tính mới
   const filteredProducts = products.filter((p) => {
-    const matchType = !filters.types || p.type === filters.types;
-    const matchColor = !filters.colors || p.color === filters.colors;
-    const matchSize = !filters.sizes || p.size === filters.sizes;
+    // Lưu ý: category trong document của bạn là "vot-cau-long"
+    const matchCategory = !filters.category || p.category === filters.category;
+    
+    // Lưu ý: Giá trong document là p.gia
     const matchPrice =
       !filters.priceRange ||
-      (p.price >= filters.priceRange.min && p.price <= filters.priceRange.max);
+      (p.gia >= filters.priceRange.min && p.gia <= filters.priceRange.max);
+    
+    // Các field như color, size, rating nếu trong DB mới chưa có thì mặc định true hoặc bổ sung sau
+    const matchColor = !filters.colors || p.color === filters.colors;
     const matchRating = !filters.rating || (p.rating || 0) >= filters.rating;
 
-    // lọc theo gender
-    let matchGender = true;
-    if (filters.gender) {
-      matchGender = p.gender === filters.gender;
-    }
-
-    return matchType && matchColor && matchSize && matchPrice && matchRating && matchGender;
+    return matchCategory && matchPrice && matchColor && matchRating;
   });
 
   return (
@@ -118,30 +113,24 @@ const addToCart = async (product) => {
 
         <FilterDropdown
           label="Danh mục"
-          open={dropdownOpen.type}
-          toggle={() => setDropdownOpen((p) => ({ ...p, type: !p.type }))}
-          options={["Tất cả" ,"Vợt cầu lông ", "Giày cầu lông ","Áo cầu lông " ,"Váy cầu lông ","Quần cầu lông " ,"Phụ kiện cầu lông ",
-          "Túi vợt "]}
-          active={filters.types}
-          onSelect={(v) => handleSelect("types", v)}
-        />
-
-        <FilterDropdown
-          label="Màu sắc"
-          open={dropdownOpen.color}
-          toggle={() => setDropdownOpen((p) => ({ ...p, color: !p.color }))}
-          options={["Đen", "Xám", "Đỏ", "Trắng", "Xanh", "Vàng"]}
-          active={filters.colors}
-          onSelect={(v) => handleSelect("colors", v)}
-        />
-
-        <FilterDropdown
-          label="Kích thước"
-          open={dropdownOpen.size}
-          toggle={() => setDropdownOpen((p) => ({ ...p, size: !p.size }))}
-          options={["M", "L", "XL"]}
-          active={filters.sizes}
-          onSelect={(v) => handleSelect("sizes", v)}
+          open={dropdownOpen.category}
+          toggle={() => setDropdownOpen((p) => ({ ...p, category: !p.category }))}
+          // Value ở đây nên khớp với field 'category' trong DB (ví dụ: 'vot-cau-long')
+          options={[
+            "vot-cau-long",
+            "giay-cau-long", 
+            "ao-cau-long",
+            "quan-cau-long",
+            "tui-cau-long",
+            "phu-kien-cau-long",
+            "vot-tennis",
+            "giay-tennis",
+            "ao-tennis",
+            "quan-tennis",
+            "tui-tennis",
+            "phu-kien-tennis"]} 
+          active={filters.category}
+          onSelect={(v) => handleSelect("category", v)}
         />
 
         <FilterPriceDropdown
@@ -152,38 +141,20 @@ const addToCart = async (product) => {
           onSelect={handlePriceSelect}
         />
 
-        <FilterDropdown
-          label="Giới tính"
-          open={dropdownOpen.gender}
-          toggle={() => setDropdownOpen((p) => ({ ...p, gender: !p.gender }))}
-          options={["Nam", "Nữ", "Unisex"]}
-          active={filters.gender ? filters.gender : ""}
-          onSelect={(v) => {
-            let genderValue = "";
-            if (v === "Nam") genderValue = "man";
-            else if (v === "Nữ") genderValue = "woman";
-            else if (v === "Unisex") genderValue = "unisex";
-            handleSelect("gender", genderValue);
-          }}
-        />
-
-        <button className="p-dropdown-toggle" onClick={handleRatingFilter}>
-          ⭐ 5 sao trở lên
-        </button>
         <button
           className="p-btn-reset"
           onClick={() =>
             setFilters({
-              types: "",
+              category: "",
               colors: "",
               sizes: "",
               priceRange: null,
               rating: 0,
-              gender: ""
+              brand: ""
             })
           }
         >
-           Xóa bộ lọc
+          Xóa bộ lọc
         </button>
       </aside>
 
@@ -191,16 +162,25 @@ const addToCart = async (product) => {
         {filteredProducts.length > 0 ? (
           filteredProducts.map((p) => (
             <div className="p-product-card" key={p._id}>
-              <img src={p.image || "/no-image.png"} alt={p.name} />
-              <div className="p-product-name">{p.name}</div>
-              <div className="p-product-info">{p.brand}</div>
-              <div className="p-product-info te xt-warning">⭐ {p.rating || 0}</div>
+              {/* Sử dụng hinhAnh.anhDaiDien */}
+              <img 
+              src={
+                p.hinhAnh?.anhDaiDien || "/images/default-product.jpg"
+              } 
+              alt={p.tenSanPham} 
+              style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+            />
+              <div className="p-product-name">{p.tenSanPham}</div>
+              <div className="p-product-info">{p.tenThuongHieu}</div>
               <div className="p-product-info text-success">
-                {p.price.toLocaleString("vi-VN")} ₫
+                {p.gia ? p.gia.toLocaleString("vi-VN") : 0} ₫
               </div>
+              <div className="p-product-info">Kho: {p.soLuong}</div>
+              
               <button className="btn-cart" onClick={() => addToCart(p)}>
                 <i className="bi bi-cart"></i> Thêm vào giỏ 
               </button>
+              
               <Link
                 to={`/detail/${p._id}`}
                 state={{ user_id: userId }}
@@ -218,7 +198,7 @@ const addToCart = async (product) => {
   );
 }
 
-// Component dropdown giá tiền
+// Các component con (FilterPriceDropdown, FilterDropdown) giữ nguyên logic hiển thị
 const FilterPriceDropdown = ({ open, toggle, ranges, active, onSelect }) => (
   <div className="p-filter-group">
     <button className="p-dropdown-toggle" onClick={toggle}>
@@ -240,7 +220,6 @@ const FilterPriceDropdown = ({ open, toggle, ranges, active, onSelect }) => (
   </div>
 );
 
-// Component dropdown chung (type, color, size, gender)
 const FilterDropdown = ({ label, open, toggle, options, active, onSelect }) => (
   <div className="p-filter-group">
     <button className="p-dropdown-toggle" onClick={toggle}>
@@ -251,7 +230,7 @@ const FilterDropdown = ({ label, open, toggle, options, active, onSelect }) => (
         {options.map((option, i) => (
           <div
             key={i}
-            className={`p-dropdown-option ${active === option || active === mapGender(option) ? "active" : ""}`}
+            className={`p-dropdown-option ${active === option ? "active" : ""}`}
             onClick={() => onSelect(option)}
           >
             {option}
@@ -261,13 +240,5 @@ const FilterDropdown = ({ label, open, toggle, options, active, onSelect }) => (
     )}
   </div>
 );
-
-// mapGender để highlight đúng giá trị khi filter gender
-const mapGender = (text) => {
-  if (text === "Nam") return "man";
-  if (text === "Nữ") return "woman";
-  if (text === "Unisex") return "unisex";
-  return "";
-};
 
 export default Products;
