@@ -1,30 +1,81 @@
-import { useEffect, useRef } from 'react';
-import './Home.css';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import "./Home.css";
 
-const products = [
-  { id: 1, gender: 'male', name: 'ÁO KHOÁC', image: '/images/ao-khoac_13.avif' },
-  { id: 2, gender: 'male', name: 'HOODIE & SWEATER', image: '/images/hoodie_93.avif' },
-  { id: 3, gender: 'male', name: 'ÁO DÀI TAY', image: '/images/ao-dai-tay_75.avif' },
-  { id: 4, gender: 'male', name: 'ÁO POLO', image: '/images/polo_77.avif' },
-  { id: 5, gender: 'male', name: 'SƠ MI', image: '/images/so-mi_4.avif' },
-  { id: 6, gender: 'male', name: 'ÁO THUN', image: '/images/ao-thun_63.avif' },
-  { id: 7, gender: 'female', name: 'ÁO THỂ THAO', image: '/images/Ao_the_thao_31.5x.avif' },
-  { id: 8, gender: 'female', name: 'VỢ t', image: '/images/Quan_the_thao_31.5x.avif' },
-  { id: 9, gender: 'female', name: 'HOODIE & SWEATER', image: '/images/Hoodie__Sweater_31.5x.avif' },
-  { id: 10, gender: 'female', name: 'BRA & LEGGINGS', image: '/images/Bra__Legging_31.5x.avif' },
-  { id: 11, gender: 'female', name: 'VÁY THỂ THAO', image: '/images/Vay_nu_3a1.5x.avif' },
-  { id: 12, gender: 'female', name: 'PHỤ KIỆN', image: '/images/Phu_kien_31.5x.avif' },
-];
 export default function Home() {
   const user = JSON.parse(localStorage.getItem("user"));
   console.log(user);
 
-  const images = [
-    "../../public/images/giay.webp",
-    "../../public/images/vot.webp",
-    "../../public/images/bata.webp",
+  /* ================= STATE ================= */
+  const [products, setProducts] = useState([]);
+  const [activeGroup, setActiveGroup] = useState("");
+  const scrollRef = useRef(null);
+  const [isDown, setIsDown] = useState(false);    
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  /* ================= CATEGORY MAP ================= */
+  const GROUP_CATEGORY_MAP = {
+    VOT: ["vot-cau-long", "vot-tennis"],
+    GIAY: ["giay-cau-long", "giay-tennis"],
+    AO: ["ao-cau-long", "ao-tennis"],
+    QUAN: ["quan-cau-long", "quan-tennis"],
+    TUI: ["tui-cau-long", "tui-tennis"],
+    PHUKIEN: ["phu-kien-cau-long", "phu-kien-tennis"],
+  };
+  // Hàm xử lý kéo chuột
+  const handleMouseDown = (e) => {
+    setIsDown(true);
+    setIsDragging(false); // Reset lại trạng thái khi mới nhấn xuống
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  
+
+  const handleMouseUp = () => {
+    setIsDown(false);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDown) return;
     
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    
+    // Nếu di chuyển chuột hơn 5 pixel thì xác định là đang kéo (Drag)
+    if (Math.abs(x - startX) > 5) {
+      setIsDragging(true);
+    }
+    
+    e.preventDefault();
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleLinkClick = (e) => {
+    if (isDragging) {
+      e.preventDefault(); // Ngăn chuyển trang khi đang kéo
+    }
+  };
+  /* ================= FETCH PRODUCTS ================= */
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products/sanpham")
+      .then((res) => res.json())
+      .then((data) => setProducts(data.products || []))
+      .catch((err) => console.log("Lỗi API:", err));
+  }, []);
+
+  /* ================= FILTER PRODUCTS ================= */
+  const filteredProducts = products.filter((p) => {
+    if (!activeGroup) return true;
+    return GROUP_CATEGORY_MAP[activeGroup]?.includes(p.category);
+  });
+
+  /* ================= SLIDER ================= */
+  const images = [
+    "/images/giay.webp",
+    "/images/vot.webp",
+    "/images/bata.webp",
   ];
 
   const trackRef = useRef(null);
@@ -51,12 +102,9 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const [gender, setGender] = useState("male");
-  const filtered = products.filter((p) => p.gender === gender);
-
   return (
     <>
-      {/*  SLIDER */}
+      {/* ================= SLIDER ================= */}
       <div className="carousel-container">
         <div className="carousel-track" ref={trackRef}>
           {images.concat(images[0]).map((img, i) => (
@@ -67,57 +115,53 @@ export default function Home() {
         </div>
       </div>
 
-      {/* BUTTON LỌC  */}
+      {/* ================= BUTTON FILTER ================= */}
       <div className="gender-buttons">
-        <button
-          className={gender === "male" ? "active" : ""}
-          onClick={() => setGender("male")}
-        >
-          VỢT
-        </button>
-        <button
-          className={gender === "female" ? "active" : ""}
-          onClick={() => setGender("female")}
-        >
-          GIÀY
-        </button>
-        <button
-          className={gender === "female" ? "active" : ""}
-          onClick={() => setGender("female")}
-        >
-          ÁO
-        </button>
-        <button
-          className={gender === "female" ? "active" : ""}
-          onClick={() => setGender("female")}
-        >
-          QUẦN
-        </button>
-        <button
-          className={gender === "female" ? "active" : ""}
-          onClick={() => setGender("female")}
-        >
-          TÚI VỢT
-        </button>
-        <button
-          className={gender === "female" ? "active" : ""}
-          onClick={() => setGender("female")}
-        >
-          PHỤ KIỆN
-        </button>
+        <button className={!activeGroup ? "active" : ""} onClick={() => setActiveGroup("")}>TẤT CẢ</button>
+        <button className={activeGroup === "VOT" ? "active" : ""} onClick={() => setActiveGroup("VOT")}>VỢT</button>
+        <button className={activeGroup === "GIAY" ? "active" : ""} onClick={() => setActiveGroup("GIAY")}>GIÀY</button>
+        <button className={activeGroup === "AO" ? "active" : ""} onClick={() => setActiveGroup("AO")}>ÁO</button>
+        <button className={activeGroup === "QUAN" ? "active" : ""} onClick={() => setActiveGroup("QUAN")}>QUẦN</button>
+        <button className={activeGroup === "TUI" ? "active" : ""} onClick={() => setActiveGroup("TUI")}>TÚI VỢT</button>
+        <button className={activeGroup === "PHUKIEN" ? "active" : ""} onClick={() => setActiveGroup("PHUKIEN")}>PHỤ KIỆN</button>
       </div>
 
       {/* DANH SÁCH SẢN PHẨM */}
-      <div className="product-list">
-        {filtered.map((item) => (
-          <div className="product-card" key={item.id}>
-            <div className="product-image-wrapper">
-              <img src={item.image} alt={item.name} />
+     <div 
+      className="product-list-container"
+      ref={scrollRef}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={() => setIsDown(false)}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+    >
+      <div className="product-list-wrapper">
+        {filteredProducts.map((item) => (
+          <Link 
+            to={`/detail/${item._id}`} 
+            key={item._id}
+            onClick={handleLinkClick} // Thêm xử lý click ở đây
+            className="product-card-link"
+            draggable="false"        // Quan trọng: Chặn trình duyệt kéo Link
+          >
+            <div className="product-card">
+              <div className="product-image-wrapper">
+                <img 
+                  src={item.anhDaiDien} 
+                  alt={item.tenSanPham} 
+                  draggable="false" // Quan trọng: Chặn trình duyệt kéo Ảnh
+                />
+              </div>
+              <div className="product-info">
+                <p className="product-brand">{item.tenThuongHieu}</p>
+                <p className="product-name">{item.tenSanPham}</p>
+                <p className="product-price"> </p>
+              </div>
             </div>
-            <p>{item.name}</p>
-          </div>
+          </Link>
         ))}
       </div>
+    </div>
 
       {/* BANNER SECTION */}
       <div className="banner-section">
