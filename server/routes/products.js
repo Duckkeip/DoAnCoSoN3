@@ -39,7 +39,7 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Lỗi server" });
   }
 });
-// GET /api/products/byType/:type
+
 // Sửa tại file router của Backend
 router.get("/byType/:type", async (req, res) => { // Giữ tên route là byType cũng được
   try {

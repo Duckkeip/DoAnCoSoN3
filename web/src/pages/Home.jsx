@@ -67,7 +67,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* BUTTON LỌC GIỚI TÍNH */}
+      {/* BUTTON LỌC  */}
       <div className="gender-buttons">
         <button
           className={gender === "male" ? "active" : ""}

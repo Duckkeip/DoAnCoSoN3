@@ -18,12 +18,12 @@ function Products() {
 
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({
-    category: "", // Đổi từ types -> category
+    category: [], // Đổi từ types -> category
     colors: "",
     sizes: "",
     priceRange: null,
     rating: 0,
-    brand: "" // Thêm brand nếu cần
+    brand: [] // Thêm brand nếu cần
   });
   
   const [dropdownOpen, setDropdownOpen] = useState({
@@ -46,12 +46,22 @@ function Products() {
   }, []);
 
   const handleSelect = (key, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: prev[key] === value ? "" : value
-    }));
-  };
+      setFilters((prev) => {
+        const arr = prev[key];
 
+        if (arr.includes(value)) {
+          return {
+            ...prev,
+            [key]: arr.filter((v) => v !== value) // bỏ chọn
+          };
+        } else {
+          return {
+            ...prev,
+            [key]: [...arr, value] // thêm chọn
+          };
+        }
+      });
+    };
   const handlePriceSelect = (range) => {
     setFilters((prev) => ({
       ...prev,
@@ -92,8 +102,8 @@ function Products() {
   // Lọc sản phẩm dựa trên các thuộc tính mới
   const filteredProducts = products.filter((p) => {
     // Lưu ý: category trong document của bạn là "vot-cau-long"
-    const matchCategory = !filters.category || p.category === filters.category;
-    
+  const matchCategory =
+  filters.category.length === 0 || filters.category.includes(p.category);
     // Lưu ý: Giá trong document là p.gia
     const matchPrice =
       !filters.priceRange ||
@@ -117,18 +127,20 @@ function Products() {
           toggle={() => setDropdownOpen((p) => ({ ...p, category: !p.category }))}
           // Value ở đây nên khớp với field 'category' trong DB (ví dụ: 'vot-cau-long')
           options={[
-            "vot-cau-long",
-            "giay-cau-long", 
-            "ao-cau-long",
-            "quan-cau-long",
-            "tui-cau-long",
-            "phu-kien-cau-long",
-            "vot-tennis",
-            "giay-tennis",
-            "ao-tennis",
-            "quan-tennis",
-            "tui-tennis",
-            "phu-kien-tennis"]} 
+          { value: "vot-cau-long", label: "Vợt cầu lông" },
+          { value: "giay-cau-long", label: "Giày cầu lông" },
+          { value: "ao-cau-long", label: "Áo cầu lông" },
+          { value: "quan-cau-long", label: "Quần cầu lông" },
+          { value: "tui-cau-long", label: "Túi cầu lông" },
+          { value: "phu-kien-cau-long", label: "Phụ kiện cầu lông" },
+
+          { value: "vot-tennis", label: "Vợt tennis" },
+          { value: "giay-tennis", label: "Giày tennis" },
+          { value: "ao-tennis", label: "Áo tennis" },
+          { value: "quan-tennis", label: "Quần tennis" },
+          { value: "tui-tennis", label: "Túi tennis" },
+          { value: "phu-kien-tennis", label: "Phụ kiện tennis" },
+        ]}
           active={filters.category}
           onSelect={(v) => handleSelect("category", v)}
         />
@@ -225,17 +237,23 @@ const FilterDropdown = ({ label, open, toggle, options, active, onSelect }) => (
     <button className="p-dropdown-toggle" onClick={toggle}>
       {label} <span>▼</span>
     </button>
+
     {open && (
       <div className="p-dropdown-menu">
-        {options.map((option, i) => (
-          <div
-            key={i}
-            className={`p-dropdown-option ${active === option ? "active" : ""}`}
-            onClick={() => onSelect(option)}
-          >
-            {option}
-          </div>
-        ))}
+        {options.map((option) => {
+          const isActive = active.includes(option.value);
+
+          return (
+            <div
+              key={option.value}
+              className={`p-dropdown-option ${isActive ? "active" : ""}`}
+              onClick={() => onSelect(option.value)}
+            >
+              <input type="checkbox" readOnly checked={isActive} />
+              <span style={{ marginLeft: 8 }}>{option.label}</span>
+            </div>
+          );
+        })}
       </div>
     )}
   </div>
