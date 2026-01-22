@@ -77,8 +77,9 @@
 .navbar-center { 
     display: flex;
     align-items: center;
-    gap: 100px; 
+    gap: 50px; 
     flex-wrap: nowrap;
+    padding-right: 100px;
   }
   .navbar-links {
     white-space: nowrap;   /* Đảm bảo chữ bên trong link không bị ngắt dòng */

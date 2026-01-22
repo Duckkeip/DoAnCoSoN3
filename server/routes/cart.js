@@ -34,12 +34,12 @@ router.post("/add", async (req, res) => {
             {
               productId: product_id,
               quantity,
-              name: productData.name,
-              price: productData.price,
-              image: productData.image,
+              name: productData.tenSanPham,
+              price: productData.gia,
+              image: productData.anhDaiDien,
             }
           ],
-          tongtien: productData.price * quantity,
+          tongtien: productData.gia * quantity,
           createdAt: new Date()
         };
   
@@ -56,7 +56,7 @@ router.post("/add", async (req, res) => {
         // cập nhật số lượng trong array
         await cartCol.updateOne(
           { user: user_id, "chitietgiohang.productId": product_id },
-          { $inc: { "chitietgiohang.$.quantity": quantity, tongtien: productData.price * quantity } }
+          { $inc: { "chitietgiohang.$.quantity": quantity, tongtien: productData.gia * quantity } }
         );
   
         return res.json({ success: true, message: "Tăng số lượng sản phẩm trong giỏ" });
@@ -66,16 +66,16 @@ router.post("/add", async (req, res) => {
       const newItem = {
         productId: product_id,
         quantity,
-        name: productData.name,
-        price: productData.price,
-        image: productData.image
+        name: productData.tenSanPham,
+        price: productData.gia,
+        image: productData.anhDaiDien
       };
   
       await cartCol.updateOne(
         { user: user_id },
         {
           $push: { chitietgiohang: newItem },
-          $inc: { tongtien: productData.price * quantity }
+          $inc: { tongtien: productData.gia * quantity }
         }
       );
   
@@ -90,7 +90,7 @@ router.post("/add", async (req, res) => {
 // GET giỏ hàng của user
 router.get("/:user_id", async (req, res) => {
     try {
-      const database = await db();
+      const database = await db(  );
       const { user_id } = req.params;
   
       let cart = await database.collection("giohang").findOne({ user: user_id });
@@ -103,7 +103,7 @@ router.get("/:user_id", async (req, res) => {
   
       // Tính tổng tiền
       const total = cart.chitietgiohang.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+        (sum, item) => sum + item.gia * item.quantity,
         0
       );
   

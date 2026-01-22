@@ -80,6 +80,7 @@ function Cart() {
         body: JSON.stringify({ user: user_id, productId }),
       });
       const data = await res.json();
+      
       if (data.success) {
         fetchCart();
         window.alert(`Đã xoá ${name} khỏi giỏ`);

@@ -1,5 +1,5 @@
 import React from "react";
-import { Link,useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import "./detail.css";
 
 function DetailF(props) {
