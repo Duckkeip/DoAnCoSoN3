@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link ,useNavigate} from "react-router-dom";
 import "./Home.css";
 
 export default function Home() {
   const user = JSON.parse(localStorage.getItem("user"));
   console.log(user);
-
+  const navigate = useNavigate();// chuyển hướng
   /* ================= STATE ================= */
   const [products, setProducts] = useState([]);
   const [activeGroup, setActiveGroup] = useState("");
@@ -103,7 +103,10 @@ export default function Home() {
   }, [images.length]);
 
   return (
+
     <>
+
+    
       {/* ================= SLIDER ================= */}
       <div className="carousel-container">
         <div className="carousel-track" ref={trackRef}>
@@ -114,7 +117,39 @@ export default function Home() {
           ))}
         </div>
       </div>
+      <div className="sidebar-wrapper">
+        <div className="sidebar-trigger" />
+        <div 
+          className="sidebar"
+          
+          onMouseLeave={() => {
+            document.querySelector(".sidebar").classList.remove("sidebar-active");
+        
+            document.querySelector(".sidebar-trigger-icon").classList.remove("icon-hidden");
+          }}
+        > 
+          <ul>
+            <li onClick={() => navigate(`/`)}> TRANG CHỦ</li>
+            <li onClick={() => navigate(`/products`)}>SẢN PHẨM</li>
+            <li onClick={() => navigate(`/`)}>TIN TỨC</li>
+            <li onClick={() => navigate(`/intro`)}>GIỚI THIỆU</li>
+            <li onClick={() => navigate(`/homeuser/${user?._id}/profile`)}>LIÊN HỆ</li>
 
+            <li onClick={() => navigate(`/cart/:id`)}>GIỎ HÀNG</li>
+          </ul>
+        </div>
+        <div 
+          className="sidebar-trigger-icon"
+          // Khi chuột lia vào ICON (30px x 30px) thì mở sidebar
+          onMouseEnter={() => {
+            document.querySelector(".sidebar").classList.add("sidebar-active");
+            // Khi mở sidebar, icon phải thụt vào
+            document.querySelector(".sidebar-trigger-icon").classList.add("icon-hidden");
+          }}
+        >
+          ☰
+        </div>
+      </div>     
       {/* ================= BUTTON FILTER ================= */}
       <div className="gender-buttons">
         <button className={!activeGroup ? "active" : ""} onClick={() => setActiveGroup("")}>TẤT CẢ</button>
@@ -168,12 +203,12 @@ export default function Home() {
         <div className="banner-card">
           <div className="image-wrapper">
             <img
-              src="/images/pro_nam_Frame_88042_(2)-min.avif"
+              src="/images/image2.png"
               alt="Men Wear"
             />
           </div>
           <div className="banner-content">
-            <h2>MEN WEAR</h2>
+            <h2>VỢT MỚI CHÍNH HÃNG</h2>
             <p>Nhập BMT Giảm 50K đơn đầu tiên từ 299k</p>
             <button>KHÁM PHÁ</button>
           </div>
@@ -182,13 +217,30 @@ export default function Home() {
         <div className="banner-card">
           <div className="image-wrapper">
             <img
-              src="/images/pro_nu_Frame_88041_(2)-min.avif"
+              src="/images/image1.png"
               alt="Women Active"
             />
           </div>
+          
           <div className="banner-content">
-            <h2>WOMEN ACTIVE</h2>
-            <p>Nhập CMVSEAMLESS Giảm 50K cho BST Seamless</p>
+            <h2>DỤNG CỤ CẦU LÔNG</h2>
+            <p>Nhập BMT9999 Giảm 99K cho BMT Seamless</p>
+            <button>KHÁM PHÁ</button>
+          </div>
+        </div>
+
+
+        <div className="banner-card">
+          <div className="image-wrapper">
+            <img
+              src="/images/image3.png"
+              alt="Women Active"
+            />
+          </div>
+          
+          <div className="banner-content">
+            <h2>GIẢI ĐẤU CẦU LÔNG</h2>
+            <p>Đăng ký ngay qua zalo</p>
             <button>KHÁM PHÁ</button>
           </div>
         </div>

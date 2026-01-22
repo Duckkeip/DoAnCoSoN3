@@ -12,7 +12,7 @@ import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
 import DetailF from './components/products/detail/detail.jsx'
 import VnpayReturn from './components/vnpay/vnpayReturn'
-
+import Intro from './components/intro/Intro.jsx'
 const UserLayout = () => {
   return (
     <>
@@ -35,6 +35,8 @@ function App() {
           <Route path="/vnpay_return" element={<VnpayReturn />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/intro" element={<Intro />} />
+          
         </Route>
 
         {/* --- NHÓM ROUTE ADMIN (ẨN NAVBAR, CÓ SIDEBAR RIÊNG) --- */}

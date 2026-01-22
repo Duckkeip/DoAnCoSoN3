@@ -12,11 +12,17 @@ const priceRanges = [
 ];
 
 function Products() {
+  
   const location = useLocation(); 
   const user_id = location.state?.user_id || JSON.parse(localStorage.getItem("user"))?.id;
   const userId = user_id || "1";
 
   const [products, setProducts] = useState([]);
+
+  const queryParams = new URLSearchParams(location.search);
+  const searchKeyword = queryParams.get("search")?.toLowerCase() || "";
+
+
   const [filters, setFilters] = useState({
     category: [], // Đổi từ types -> category
     colors: "",
@@ -101,7 +107,12 @@ function Products() {
   // Lọc sản phẩm dựa trên filters
   // Lọc sản phẩm dựa trên các thuộc tính mới
   const filteredProducts = products.filter((p) => {
-    // Lưu ý: category trong document của bạn là "vot-cau-long"
+
+  const matchSearch = searchKeyword === "" || 
+  p.tenSanPham.toLowerCase().includes(searchKeyword) || 
+  p.tenThuongHieu.toLowerCase().includes(searchKeyword);
+
+
   const matchCategory =
   filters.category.length === 0 || filters.category.includes(p.category);
     // Lưu ý: Giá trong document là p.gia
@@ -113,7 +124,7 @@ function Products() {
     const matchColor = !filters.colors || p.color === filters.colors;
     const matchRating = !filters.rating || (p.rating || 0) >= filters.rating;
 
-    return matchCategory && matchPrice && matchColor && matchRating;
+    return matchSearch && matchCategory && matchPrice && matchColor && matchRating;
   });
 
   return (
@@ -133,13 +144,19 @@ function Products() {
           { value: "quan-cau-long", label: "Quần cầu lông" },
           { value: "tui-cau-long", label: "Túi cầu lông" },
           { value: "phu-kien-cau-long", label: "Phụ kiện cầu lông" },
+          { value: "balo-cau-long", label: "Balô cầu lông" },  
 
-          { value: "vot-tennis", label: "Vợt tennis" },
-          { value: "giay-tennis", label: "Giày tennis" },
-          { value: "ao-tennis", label: "Áo tennis" },
-          { value: "quan-tennis", label: "Quần tennis" },
-          { value: "tui-tennis", label: "Túi tennis" },
-          { value: "phu-kien-tennis", label: "Phụ kiện tennis" },
+
+          { value: "vot-tennis", label: "Vợt Tennis" },
+          { value: "giay-tennis", label: "Giày Tennis" },
+          { value: "ao-tennis", label: "Áo Tennis" },
+          { value: "quan-tennis", label: "Quần Tennis" },
+          { value: "tui-tennis", label: "Túi Tennis" },
+          { value: "phu-kien-tennis", label: "Phụ kiện Tennis" },
+          { value: "balo-tennis", label: "Balô Tennis" },  
+
+          
+
         ]}
           active={filters.category}
           onSelect={(v) => handleSelect("category", v)}
@@ -157,12 +174,12 @@ function Products() {
           className="p-btn-reset"
           onClick={() =>
             setFilters({
-              category: "",
+              category: [],
               colors: "",
               sizes: "",
               priceRange: null,
               rating: 0,
-              brand: ""
+              brand: []
             })
           }
         >
@@ -171,41 +188,48 @@ function Products() {
       </aside>
 
       <main className="p-product-list">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((p) => (
-            <div className="p-product-card" key={p._id}>
-              {/* Truy cập phần tử đầu tiên của mảng hinhAnh để lấy anhDaiDien */}
-              <img 
-                // Lấy phần tử đầu tiên của mảng hinhAnh, sau đó truy cập anhDaiDien
-                src={p.anhDaiDien} 
-                alt={p.tenSanPham} 
-                className="p-product-image"
-              />
-              
-              <div className="p-product-name">{p.tenSanPham}</div>
-              <div className="p-product-info">{p.tenThuongHieu}</div>
-              
-              <div className="p-product-info text-success">
-                {p.gia ? p.gia.toLocaleString("vi-VN") : 0} ₫
+       
+          {/* Khối chứa sản phẩm - Giữ nguyên Grid của bạn */}
+          <div className="product-grid-wrapper">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((p) => (
+                <div className="p-product-card" key={p._id}>
+                      {/* Truy cập phần tử đầu tiên của mảng hinhAnh để lấy anhDaiDien */}
+                      <img 
+                        // Lấy phần tử đầu tiên của mảng hinhAnh, sau đó truy cập anhDaiDien
+                        src={p.anhDaiDien} 
+                        alt={p.tenSanPham} 
+                        className="p-product-image"
+                      />
+                      
+                      <div className="p-product-name">{p.tenSanPham}</div>
+                      <div className="p-product-info">{p.tenThuongHieu}</div>
+                      
+                      <div className="p-product-info text-success">
+                        {p.gia ? p.gia.toLocaleString("vi-VN") : 0} ₫
+                      </div>
+
+                      <button className="btn-cart" onClick={() => addToCart(p)}>
+                        <i className="bi bi-cart"></i> Thêm vào giỏ 
+                      </button>
+
+                      <Link
+                        to={`/detail/${p._id}`}
+                        state={{ user_id: userId }}
+                        className="btn-detail"
+                      >
+                        <i className="bi bi-eye"></i> Xem chi tiết
+                      </Link>
+                      </div>
+              ))
+            ) : (
+              <div className="no-result">
+                <img src="/images/no-product.png" alt="No result" />
+                <p>Rất tiếc, không tìm thấy sản phẩm nào phù hợp.</p>
               </div>
-
-              <button className="btn-cart" onClick={() => addToCart(p)}>
-                <i className="bi bi-cart"></i> Thêm vào giỏ 
-              </button>
-
-              <Link
-                to={`/detail/${p._id}`}
-                state={{ user_id: userId }}
-                className="btn-detail"
-              >
-                <i className="bi bi-eye"></i> Xem chi tiết
-              </Link>
-            </div>
-          ))
-        ) : (
-          <p>Không tìm thấy sản phẩm phù hợp.</p>
-        )}
-      </main>
+            )}
+          </div>
+        </main>
     </div>
   );
 }

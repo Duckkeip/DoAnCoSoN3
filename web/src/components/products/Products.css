@@ -16,6 +16,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
+  
 }
 
 .p-product-sidebar h2 {
@@ -101,10 +102,59 @@
 
 /* Danh sách sản phẩm */
 .p-product-list {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 3fr));
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+}
+
+/* Header của phần tìm kiếm */
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 5px solid #ff4d4d; /* Tạo điểm nhấn màu đỏ */
+  margin-bottom: 10px; /* Khoảng cách với hàng sản phẩm đầu tiên */
+}
+
+.search-header p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.search-header .keyword {
+  color: #ff4d4d;
+  font-italic: italic;
+}
+
+.clear-search {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.clear-search:hover {
+  background-color: #eee;
+}
+
+/* Grid sản phẩm - Đảm bảo không bị nhảy vị trí */
+.product-grid-wrapper {
+  display: grid;
+  grid-template-columns: repeat(5, 2fr);
+  gap: 20px;
+  width: 100%;
+  }
+/* Khi không có sản phẩm */
+.no-result {
+  grid-column: 1 / -1; /* Chiếm toàn bộ chiều rộng grid */
+  text-align: center;
+  padding: 50px;
+  color: #666;
 }
 
 /* Card sản phẩm */
@@ -202,4 +252,12 @@
 
 .btn-detail:hover {
   background-color: #5a6268;
+}
+.search-header {
+  animation: fadeInDown 0.4s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
