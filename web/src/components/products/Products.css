@@ -11,12 +11,32 @@
 /* Sidebar bộ lọc */
 .p-product-sidebar {
   width: 250px;
-  background-color: #fff;
+  height: 100%;
+  background-color: #d3c6c6;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
-  
+
+  /* Cấu hình để Scroll */
+  position: sticky;      /* Giữ sidebar đứng yên khi cuộn trang web */
+  top: 20px;             /* Cách mép trên màn hình một khoảng */
+  max-height: calc(100vh - 40px); /* Chiều cao tối đa bằng màn hình trừ đi lề */
+  overflow-y: auto;      /* Tự động hiện thanh cuộn nếu nội dung dài hơn chiều cao */
+}
+
+/* Tùy chỉnh thanh cuộn (Scrollbar) cho đẹp hơn (Tùy chọn) */
+.p-product-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.p-product-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.p-product-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
 }
 
 .p-product-sidebar h2 {
@@ -255,6 +275,10 @@
 }
 .search-header {
   animation: fadeInDown 0.4s ease;
+}
+
+.p-filter-header {
+    padding: 10px 0;
 }
 
 @keyframes fadeInDown {

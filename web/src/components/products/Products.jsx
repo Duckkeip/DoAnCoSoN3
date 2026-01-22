@@ -108,30 +108,46 @@ function Products() {
   // Lọc sản phẩm dựa trên các thuộc tính mới
   const filteredProducts = products.filter((p) => {
 
-  const matchSearch = searchKeyword === "" || 
-  p.tenSanPham.toLowerCase().includes(searchKeyword) || 
-  p.tenThuongHieu.toLowerCase().includes(searchKeyword);
+    const matchSearch = searchKeyword === "" || 
+    p.tenSanPham.toLowerCase().includes(searchKeyword) || 
+    p.tenThuongHieu.toLowerCase().includes(searchKeyword);
 
-
-  const matchCategory =
-  filters.category.length === 0 || filters.category.includes(p.category);
+    const matchCategory =
+    filters.category.length === 0 || filters.category.includes(p.category);
     // Lưu ý: Giá trong document là p.gia
     const matchPrice =
       !filters.priceRange ||
       (p.gia >= filters.priceRange.min && p.gia <= filters.priceRange.max);
     
     // Các field như color, size, rating nếu trong DB mới chưa có thì mặc định true hoặc bổ sung sau
-    const matchColor = !filters.colors || p.color === filters.colors;
+    const matchBrand = filters.brand.length === 0 || filters.brand.includes(p.tenThuongHieu);
     const matchRating = !filters.rating || (p.rating || 0) >= filters.rating;
 
-    return matchSearch && matchCategory && matchPrice && matchColor && matchRating;
+    return matchSearch && matchCategory && matchPrice && matchBrand && matchRating;
   });
 
   return (
     <div className="p-product-container">
       <aside className="p-product-sidebar">
+        <div className="p-filter-header">
         <h2>Bộ lọc</h2>
-
+        
+        <button
+          className="p-btn-reset"
+          onClick={() =>
+            setFilters({
+              category: [],
+              colors: "",
+              sizes: "",
+              priceRange: null,
+              rating: 0,
+              brand: []
+            })
+          }
+        >
+          Xóa bộ lọc
+        </button>
+        </div>
         <FilterDropdown
           label="Danh mục"
           open={dropdownOpen.category}
@@ -161,7 +177,19 @@ function Products() {
           active={filters.category}
           onSelect={(v) => handleSelect("category", v)}
         />
-
+        <FilterDropdown
+          label="Thương hiệu"
+          open={dropdownOpen.brand}
+          toggle={() => setDropdownOpen((p) => ({ ...p, brand: !p.brand }))}
+          options={[
+            { value: "Yonex", label: "Yonex" },
+            { value: "Asics", label: "Asics" },
+            { value: "Victor", label: "Victor" },
+            { value: "Lining", label: "Lining" },
+          ]}
+          active={filters.brand}
+          onSelect={(v) => handleSelect("brand", v)} // Dùng chung hàm handleCategorySelect vì cùng logic mảng
+        />  
         <FilterPriceDropdown
           open={dropdownOpen.price}
           toggle={() => setDropdownOpen((p) => ({ ...p, price: !p.price }))}
@@ -170,21 +198,6 @@ function Products() {
           onSelect={handlePriceSelect}
         />
 
-        <button
-          className="p-btn-reset"
-          onClick={() =>
-            setFilters({
-              category: [],
-              colors: "",
-              sizes: "",
-              priceRange: null,
-              rating: 0,
-              brand: []
-            })
-          }
-        >
-          Xóa bộ lọc
-        </button>
       </aside>
 
       <main className="p-product-list">
