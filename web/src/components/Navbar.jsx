@@ -120,13 +120,13 @@ const handleLogout = async () => {
             </div>
           </div>
           <div className="navbar-links">
-            <Link to="/">TIN TỨC</Link>
+            <Link to="/news">TIN TỨC</Link>
           </div>
           <div className="navbar-links">
             <Link to="/intro">GIỚI THIỆU</Link>
           </div>
           <div className="navbar-links">
-            <Link to="/">LIÊN HỆ</Link>
+            <Link to="/contact">LIÊN HỆ</Link>
           </div>
         </div>
 

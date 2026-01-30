@@ -12,7 +12,9 @@ import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
 import DetailF from './components/products/detail/detail.jsx'
 import VnpayReturn from './components/vnpay/vnpayReturn'
-import Intro from './components/intro/Intro.jsx'
+import Intro from './components/about/Intro.jsx'
+import News from './components/news/News.jsx'
+import Contact from './components/contact/Contact.jsx'
 const UserLayout = () => {
   return (
     <>
@@ -36,6 +38,9 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/intro" element={<Intro />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/contact" element={<Contact />} />
+          
           
         </Route>
 

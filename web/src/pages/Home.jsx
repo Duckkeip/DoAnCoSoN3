@@ -22,6 +22,7 @@ export default function Home() {
     QUAN: ["quan-cau-long", "quan-tennis"],
     TUI: ["tui-cau-long", "tui-tennis"],
     PHUKIEN: ["phu-kien-cau-long", "phu-kien-tennis"],
+    BALO:["balo-cau-long","balo-tennis"]
   };
   // Hàm xử lý kéo chuột
   const handleMouseDown = (e) => {
@@ -158,6 +159,7 @@ export default function Home() {
         <button className={activeGroup === "AO" ? "active" : ""} onClick={() => setActiveGroup("AO")}>ÁO</button>
         <button className={activeGroup === "QUAN" ? "active" : ""} onClick={() => setActiveGroup("QUAN")}>QUẦN</button>
         <button className={activeGroup === "TUI" ? "active" : ""} onClick={() => setActiveGroup("TUI")}>TÚI VỢT</button>
+        <button className={activeGroup === "BALO" ? "active" : ""} onClick={() => setActiveGroup("BALO")}>BALÔ</button>
         <button className={activeGroup === "PHUKIEN" ? "active" : ""} onClick={() => setActiveGroup("PHUKIEN")}>PHỤ KIỆN</button>
       </div>
 

@@ -7,6 +7,8 @@ const payRoutes = require("./routes/pay");
 const db = require("./config/db");
 const adminRoutes = require("./routes/admin");
 require("dotenv").config();
+const path = require('path');
+
 
 const app = express();
 app.use(cors({
@@ -18,6 +20,8 @@ app.use(cors({
 app.use(express.json());
 
 db();
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);

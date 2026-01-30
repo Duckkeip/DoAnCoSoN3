@@ -1,18 +1,19 @@
 .admin-layout {
     display: flex;
     min-height: 100vh;
-    background-color: #C0c0c0;
+    width: 100%; /* Chiếm toàn bộ chiều ngang */
+    background: linear-gradient(to top, #2b282cb9, rgb(50, 30, 63),rgb(100, 78, 100));
+    overflow: hidden;
     font-family: Arial, sans-serif;
   }
   
   .admin-sidebar {
-    width: 180px;
+    width: 160px;
     height: 100vh; /* chiếm toàn bộ chiều cao màn hình */
     position:sticky; /* cố định sidebar bên trái khi cuộn */
     top: 0;
     left: 0;
 
-    background: linear-gradient(to top, #272626b9, #39387cb9,#1d1c1cb9);
     color: white;
     display: flex;
     flex-direction: column;
@@ -27,7 +28,7 @@
       font-weight: bold;
     
       /* Gradient chữ */
-      background: linear-gradient(to top, #3b0753b9, rgb(61, 12, 117),purple);
+      background: linear-gradient(to top, #4f345cb9, rgb(60, 103, 184),rgb(148, 63, 204));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
   }
@@ -38,21 +39,24 @@
     width: 100%;
   }
   
-  .admin-sidebar button {
-    background: none;
-    color: white;
-    border: none;
-    font-weight:bold;
-    padding: 10px 15px;
-    margin: 5px 0;
+  .admin-sidebar nav button {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
     text-align: left;
+    background: transparent;
+    border: none;
+    color: #bdc3c7;
     cursor: pointer;
-    border-radius: 6px;
-    transition: background 0.2s;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s;
   }
   
-  .admin-sidebar button:hover {
-    background: rgba(255, 255, 255, 0.15);
+  .admin-sidebar nav button:hover {
+    background: #34495e;
+    color: white;
+    padding-left: 20px; /* Hiệu ứng đẩy sang phải nhẹ khi hover */
   }
   
   .logout-btn {
@@ -74,12 +78,17 @@
   }
   
   .admin-content {
-    flex: 1;
-    padding: 25px;
+    flex-grow: 1; /* Để phần nội dung chiếm hết khoảng trống còn lại */
+    padding: 30px; /* Tạo khoảng trống xung quanh nội dung cho thoáng */
+    overflow-y: auto; /* Cho phép cuộn nội dung độc lập */
+    background-color: #998a8a;
   }
   .dashboard-container,
 .userlist-container {
-  padding: 20px;
+  width: 100%;
+  margin: 0 auto;
+  /* Nếu có max-width: 1000px hay gì đó, hãy xóa đi hoặc để 100% */
+  max-width: 100%; 
 }
 
 .stats-grid {
@@ -117,21 +126,21 @@
   cursor: pointer;
 }
 .admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-  }
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 15px; /* Tăng nhẹ font chữ cho dễ đọc */
+}
   
   .admin-table th,
   .admin-table td {
     border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
+    padding: 15px;
+    text-align: left;
+    font-size: larger;
+    font-family: 'Times New Roman', Times, serif  ;
   }
   
-  .admin-table th {
-    background-color: #f0f0f0;
-  }
   .view-btn,
   .admin-table button {
     margin: 2px;
@@ -280,3 +289,303 @@
   .cancel-btn:hover {
     background-color: #ff0000;
   }
+
+/* Ảnh thu nhỏ trong Dashboard */
+.img-thumb {
+    width: 120px;
+    border: 2px solid #000;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
+}
+.img-thumb:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 1);
+  transform: scale(1.05);
+  transition: 0.3s;
+}
+
+
+/* Lớp nền mờ bao phủ toàn màn hình MODAL HỘP THOẠI */
+.admin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Nền tối vừa phải */
+  backdrop-filter: blur(4px); /* Làm mờ hậu cảnh nhìn rất sang */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Hộp nội dung trắng */
+.modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-width: 600px; /* Độ rộng vừa phải cho form */
+  max-height: 90vh; /* Không quá cao quá màn hình */
+  overflow-y: auto; /* Tự scroll nếu nội dung dài */
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.5rem;
+  text-align: center;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+/* Style cho các ô Input và Select */
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+  box-sizing: border-box; /* Quan trọng để không bị tràn */
+}
+
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  outline: none;
+}
+
+/* Chia hàng cho Giá và Số lượng */
+.modal-row {
+  display: flex;
+  gap: 15px;
+}
+
+.modal-row > * {
+  flex: 1;
+}
+
+/* Style cho phần Upload ảnh */
+.modal-content input[type="file"] {
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Căn giữa ảnh preview */
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  margin-bottom: 15px;
+}
+
+.img-preview {
+  width: auto; /* Để chiều rộng tự động theo tỉ lệ */
+  max-width: 100%; /* Không vượt quá khung chứa */
+  height: 200px; /* Cố định chiều cao vừa phải */
+  object-fit: contain; /* Hiện toàn bộ ảnh, không bị mất góc như 'cover' */
+  border-radius: 8px;
+  border: 2px dashed #007bff; /* Đổi sang màu xanh cho nổi bật */
+  background-color: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: zoom-in; /* Tạo cảm giác có thể tương tác */
+}
+
+/* Hiệu ứng khi rê chuột vào ảnh */
+.img-preview:hover {
+  transform: scale(1.02); /* Phóng to nhẹ */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  border-color: #28a745;
+}
+/* Nút bấm */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-btn:hover { background-color: #218838; }
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancel-btn:hover { background-color: #5a6268; }
+
+/* Nền đen mờ phủ toàn màn hình */
+.image-zoom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Cao hơn cả Modal */
+  cursor: zoom-out;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Khung chứa ảnh phóng to */
+.zoom-container {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.zoomed-image {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  animation: zoomIn 0.3s ease;
+}
+
+.close-zoom {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.8); }
+  to { transform: scale(1); }
+}
+
+/*phân trang */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination button:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/*lọc*/
+.dropdown-container {
+  display: inline-block;
+}
+
+.dropdown-btn {
+  padding: 8px 15px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.dropdown-btn.active {
+  border-color: #007bff;
+  color: #007bff;
+  background: #f0f7ff;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  padding: 10px;
+  min-width: 200px;
+  z-index: 999;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background: #f5f5f5;
+}
+
+.dropdown-btn .count {
+  background: #007bff;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.dropdown-btn .arrow {
+  font-size: 10px;
+  color: #999;
+}

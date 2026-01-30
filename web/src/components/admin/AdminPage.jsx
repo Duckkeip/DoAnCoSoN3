@@ -13,8 +13,8 @@ function AdminPage() {
       // Nếu chưa đăng nhập hoặc không phải admin → đá ra ngoài
       if (!storedUser || storedUser.role !== "admin") {
         alert("❌ Bạn không có quyền truy cập trang này!");
-        navigate("/home");
-      }
+        navigate("/login");
+      } 
     }, [navigate]);
   
     const handleLogout = () => {
@@ -31,8 +31,9 @@ function AdminPage() {
               <button onClick={() => navigate(`/admin/${id}`)}>🏠 Dashboard</button>
               <button onClick={() => navigate(`/admin/${id}/users`)}>👥 Quản lý User</button>
               <button onClick={() => navigate(`/home/${id}`)}>Sang trang người dùng</button>
+              <button className="logout-btn" onClick={handleLogout}>  🚪 Đăng xuất</button>
+
             </nav>
-            <button className="logout-btn" onClick={handleLogout}>  🚪 Đăng xuất</button>
           </aside>
     
           {/* Nội dung trang con */}
