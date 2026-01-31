@@ -15,6 +15,9 @@ export default function Dashboard() {
   const [selectedFile, setSelectedFile] = useState(null); // Để lưu file khi chọn từ máy
   const [preview, setPreview] = useState(null); // Đảm bảo dòng này có tồn tại
   const [isZoomed, setIsZoomed] = useState(false);
+  
+  // Bộ lọc mở/ đong
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Phân trang
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,25 +46,65 @@ const [dropdownOpen, setDropdownOpen] = useState({
   brand: false,
   price: false
 });
+const categoryNameMap = {
+  "vot-cau-long": "Vợt Cầu Lông",
+  "ao-cau-long": "Áo Cầu Lông",
+  "giay-cau-long": "Giày Cầu Lông",
+  "balo-cau-long": "Balo Cầu Lông",
+  "phukien-cau-long": "Phụ Kiện Cầu Lông",
+  "quan-cau-long": "Quần Cầu Lông",
+  "tui-cau-long": "Túi Cầu Lông",
 
+  "vot-tennis": "Vợt Tennis",
+  "ao-tennis": "Áo Tennis",
+  "giay-tennis": "Giày Tennis",
+  "balo-tennis": "Balo Tennis",
+  "phukien-tennis": "Phụ Kiện Tennis",
+  "quan-tennis": "Quần Tennis",
+  "tui-tennis": "Túi Tennis"
+};  
   const API_URL = "http://localhost:5000/api/admin/products"; 
 
-  // 1. FETCH DỮ LIỆU TỪ BACKEND
+  const buildQuery = () => {
+    const params = new URLSearchParams();
+  
+    params.append("page", currentPage);
+    params.append("limit", limit);
+  
+    if (filters.category.length > 0) {
+      params.append("category", filters.category.join(","));
+    }
+  
+    if (filters.brand.length > 0) {
+      params.append("brand", filters.brand.join(","));
+    }
+  
+    if (filters.priceRange) {
+      params.append("minPrice", filters.priceRange[0]);
+      params.append("maxPrice", filters.priceRange[1]);
+    }
+  
+    return params.toString();
+  };
+  
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}?page=${currentPage}&limit=${limit}`);
-      // Vì backend trả về object { products, totalPages... }, nên phải set đúng:
-      setProducts(response.data.products);
-      setTotalPages(response.data.totalPages);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách sản phẩm:", error);
+      const query = buildQuery();
+      const res = await axios.get(`${API_URL}?${query}`);
+      setProducts(res.data.products);
+      setTotalPages(res.data.totalPages);
+    } catch (err) {
+      console.error(err);
     }
   };
   
   useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+  
+  useEffect(() => {
     fetchProducts();
-  }, [currentPage]);
-
+  }, [currentPage, filters]);
 
 
   const handleSave = async () => {
@@ -201,16 +244,121 @@ const handlePriceSelect = (range) => {
   setFilters(prev => ({ ...prev, priceRange: range }));
 };  
 
+
+//lọc
+const filteredProducts = products.filter(product => {
+  // 1. Lọc category
+  if (
+    filters.category.length > 0 &&
+    !filters.category.includes(product.category)
+  ) return false;
+
+  // 2. Lọc brand
+  if (
+    filters.brand.length > 0 &&
+    !filters.brand.includes(product.brand)
+  ) return false;
+
+  // 3. Lọc giá
+  if (filters.priceRange) {
+    const price = Number(product.gia);
+    const [min, max] = filters.priceRange;
+
+    if (price < min || price > max) return false;
+  }
+
+  // 4. Lọc rating (nếu có)
+  if (filters.rating > 0 && product.rating < filters.rating) {
+    return false;
+  }
+
+  return true;
+});
+
+
   return (  
     
     <div className="dashboard-container">
 
       <div className="admin-header-actions">
+
         <h2>QUẢN LÝ KHO HÀNG</h2>
+
+        <button
+          className="filter-toggle-btn"
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+        >
+          Bộ lọc {isFilterOpen ? "▲" : "▼"}
+        </button>
+
         <button className="add-btn" onClick={() => setIsModalOpen(true)}>+ Thêm Sản Phẩm</button>
       </div>
-      
-      
+      <div className={`filter-panel ${isFilterOpen ? "open" : ""}`}>
+
+
+      {/* CATEGORY */}
+      <div className="filter-group">
+        <p>Danh mục</p>
+        {Object.keys(categoryNameMap).map(c => (
+          <button
+            key={c}
+            className={filters.category.includes(c) ? "filter-btn active" : "filter-btn"}
+            onClick={() => handleSelect("category", c)}
+          >
+            {categoryNameMap[c]}
+          </button>
+        ))}
+      </div>
+
+      {/* BRAND */}
+      <div className="filter-group">
+        <p>Thương hiệu</p>
+        {["yonex", "lining", "asics","victor"].map(b => (
+          <button
+            key={b}
+            className={filters.brand.includes(b) ? "filter-btn active" : "filter-btn"}
+            onClick={() => handleSelect("brand", b)}
+          >
+            {b.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
+      {/* PRICE */}
+      <div className="filter-group">
+        <p>Giá</p>
+        <button
+          className={filters.priceRange?.[1] === 500000 ? "filter-btn active" : "filter-btn"}
+          onClick={() => handlePriceSelect([0, 500000])}
+        >
+          Dưới 500K
+        </button>
+
+        <button
+          className={filters.priceRange?.[0] === 500000 ? "filter-btn active" : "filter-btn"}
+          onClick={() => handlePriceSelect([500000, 1000000])}
+        >
+          500K – 1tr
+        </button>
+
+        <button
+          className={filters.priceRange?.[0] === 1000000 ? "filter-btn active" : "filter-btn"}
+          onClick={() => handlePriceSelect([1000000, 99999999])}
+        >
+          Trên 1tr
+        </button>
+      </div>
+
+      <button
+        className="reset-filter"
+        onClick={() =>
+          setFilters({ category: [], brand: [], priceRange: null, rating: 0 })
+        }
+      >
+        Xóa bộ lọc
+      </button>
+    </div>
+
       <div className="pagination-wrapper top">
           {renderPagination()}
       </div>
@@ -355,6 +503,11 @@ const handlePriceSelect = (range) => {
           </div>
         </div>
       )}
+
+
+
+
+
     </div>
   );
 }

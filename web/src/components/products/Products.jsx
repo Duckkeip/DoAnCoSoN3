@@ -21,6 +21,7 @@ function Products() {
 
   const queryParams = new URLSearchParams(location.search);
   const searchKeyword = queryParams.get("search")?.toLowerCase() || "";
+  // Lấy giá trị từ URL
 
 
   const [filters, setFilters] = useState({
@@ -39,6 +40,34 @@ function Products() {
     price: false,
     brand: false
   });
+
+
+  // Thêm đoạn này ngay dưới các khai báo useState ban đầu
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const categoryFromUrl = queryParams.get("category");
+    const brandFromUrl = queryParams.get("brand"); // Lấy brand từ URL
+
+    setFilters(prev => ({
+      ...prev,
+      // Nếu có giá trị trên URL thì ưu tiên lấy giá trị đó, nếu không thì reset về mảng rỗng
+      category: categoryFromUrl ? [categoryFromUrl] : [],
+      brand: brandFromUrl ? [brandFromUrl] : []
+    }));
+  }, [location.search]); // Quan trọng: Phải có location.search ở đây
+    
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const categoryFromUrl = queryParams.get("category");
+    const brandFromUrl = queryParams.get("brand");
+
+    setFilters(prev => ({
+      ...prev,
+      // Nếu URL có category/brand thì đưa vào mảng, nếu không thì reset về rỗng
+      category: categoryFromUrl ? [categoryFromUrl] : [],
+      brand: brandFromUrl ? [brandFromUrl] : []
+    }));
+  }, [location.search]); // Luôn chạy lại khi thanh địa chỉ (URL) thay đổi
 
   // Lấy dữ liệu sản phẩm từ API
   useEffect(() => {
@@ -107,20 +136,22 @@ function Products() {
   // Lọc sản phẩm dựa trên filters
   // Lọc sản phẩm dựa trên các thuộc tính mới
   const filteredProducts = products.filter((p) => {
-
+    const queryParams = new URLSearchParams(location.search);
+    const searchKeyword = queryParams.get("search")?.toLowerCase() || "";
     const matchSearch = searchKeyword === "" || 
     p.tenSanPham.toLowerCase().includes(searchKeyword) || 
     p.tenThuongHieu.toLowerCase().includes(searchKeyword);
 
-    const matchCategory =
-    filters.category.length === 0 || filters.category.includes(p.category);
+    const matchCategory = filters.category.length === 0 || 
+                        filters.category.includes(p.category);
     // Lưu ý: Giá trong document là p.gia
     const matchPrice =
       !filters.priceRange ||
       (p.gia >= filters.priceRange.min && p.gia <= filters.priceRange.max);
     
     // Các field như color, size, rating nếu trong DB mới chưa có thì mặc định true hoặc bổ sung sau
-    const matchBrand = filters.brand.length === 0 || filters.brand.includes(p.tenThuongHieu);
+    const matchBrand = filters.brand.length === 0 || 
+                     filters.brand.some(b => b.toLowerCase() === p.tenThuongHieu?.toLowerCase());
     const matchRating = !filters.rating || (p.rating || 0) >= filters.rating;
 
     return matchSearch && matchCategory && matchPrice && matchBrand && matchRating;
@@ -182,10 +213,10 @@ function Products() {
           open={dropdownOpen.brand}
           toggle={() => setDropdownOpen((p) => ({ ...p, brand: !p.brand }))}
           options={[
-            { value: "Yonex", label: "Yonex" },
-            { value: "Asics", label: "Asics" },
-            { value: "Victor", label: "Victor" },
-            { value: "Lining", label: "Lining" },
+            { value: "yonex", label: "Yonex" },  
+            { value: "victor", label: "Victor" },
+            { value: "lining", label: "Lining" },
+            { value: "asics", label: "Asics" },
           ]}
           active={filters.brand}
           onSelect={(v) => handleSelect("brand", v)} // Dùng chung hàm handleCategorySelect vì cùng logic mảng

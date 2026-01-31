@@ -1,3 +1,5 @@
+
+
 .user-info {
   display: flex;
   align-items: center;
@@ -79,7 +81,7 @@
     align-items: center;
     gap: 50px; 
     flex-wrap: nowrap;
-    padding-right: 100px;
+    padding-right: 1px;
   }
   .navbar-links {
     white-space: nowrap;   /* Đảm bảo chữ bên trong link không bị ngắt dòng */
@@ -88,9 +90,9 @@
   text-decoration: none;
   color: #333333;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 15px;
   transition: 0.3s;
-  
+  padding-left: 12px;
 }
 
 /* MEGA MENU LOGIC */

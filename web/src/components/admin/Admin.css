@@ -528,64 +528,95 @@
 }
 
 /*lọc*/
-.dropdown-container {
-  display: inline-block;
+.filter-bar {
+  display: flex;
+  gap: 30px;
+  padding: 15px;
+  background: #f4f4f4;
+  margin-bottom: 15px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.dropdown-btn {
-  padding: 8px 15px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+.filter-group label {
+  margin-right: 10px;
   cursor: pointer;
+}
+
+.filter-group button {
+  margin-right: 8px;
+}
+
+.header-actions-right {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.dropdown-btn.active {
-  border-color: #007bff;
-  color: #007bff;
-  background: #f0f7ff;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 110%;
-  left: 0;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  padding: 10px;
-  min-width: 200px;
-  z-index: 999;
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
   gap: 10px;
-  padding: 8px;
-  cursor: pointer;
-  border-radius: 4px;
-  white-space: nowrap;
 }
 
-.dropdown-item:hover {
-  background: #f5f5f5;
-}
-
-.dropdown-btn .count {
-  background: #007bff;
+.filter-toggle-btn,
+.add-btn {
+  background: #333;
   color: white;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 10px;
+  padding: 8px 14px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
 }
 
-.dropdown-btn .arrow {
-  font-size: 10px;
-  color: #999;
+.filter-panel {
+  background: #f5f5f5;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-group {
+  margin-bottom: 12px;
+}
+
+.filter-btn {
+  padding: 6px 12px;
+  margin: 5px 8px 5px 0;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 20px;
+}
+
+.filter-btn.active {
+  background: #ff4d4f;
+  color: white;
+  border-color: #ff4d4f;
+}
+
+.reset-filter {
+  margin-top: 10px;
+  padding: 6px 14px;
+}
+.filter-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: 
+    max-height 0.4s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    padding 0.3s ease,
+    margin 0.3s ease;
+  padding: 0 15px;
+  margin: 0;
+}
+
+.filter-panel.open {
+  max-height: 500px; /* đủ lớn */
+  opacity: 1;
+  transform: translateY(0);
+  padding: 15px;
+  margin: 15px 0;
 }

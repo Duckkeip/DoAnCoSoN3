@@ -50,14 +50,37 @@ router.put("/users/:id/status", async (req, res) => {
 
 router.get("/products", async (req, res) => {
   const database = await db();
-  const page = parseInt(req.query.page) || 1; // Trang hiện tại, mặc định là 1
-  const limit = parseInt(req.query.limit) || 10; // Số lượng mỗi trang, mặc định là 10
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
+  const { category, brand, minPrice, maxPrice } = req.query;
+
+  let filter = {};
+
+  // Lọc category
+  if (category) {
+    filter.category = { $in: category.split(",") };
+  }
+
+  // Lọc brand
+  if (brand) {
+    filter.brand = { $in: brand.split(",") };
+  }
+
+  // Lọc giá
+  if (minPrice || maxPrice) {
+    filter.gia = {};
+    if (minPrice) filter.gia.$gte = Number(minPrice);
+    if (maxPrice) filter.gia.$lte = Number(maxPrice);
+  }
+
   try {
-    const total = await database.collection("products").countDocuments();
+    const total = await database.collection("products").countDocuments(filter);
+
     const products = await database.collection("products")
-      .find()
+      .find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
