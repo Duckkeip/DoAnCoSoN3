@@ -23,7 +23,16 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 7; // Số sản phẩm mỗi trang
-    
+  
+  const formatCurrency = (value) => {
+    if (!value) return '';
+    return Number(value).toLocaleString('vi-VN');
+  };
+  
+  const parseCurrency = (value) => {
+    return value.replace(/[^\d]/g, '');
+  };
+
   const [formData, setFormData] = useState({
     tenSanPham: '',
     category: 'caulong', // Đổi từ 'Cầu lông' thành 'caulong'
@@ -409,7 +418,7 @@ const filteredProducts = products.filter(product => {
         </div>
       )}      
 
-     {/*Modal hộp thoại*/}
+     {/*Modal hộp thoại thêm sp*/}
      {isModalOpen && (
         <div className="admin-modal">
           <div className="modal-content">
@@ -441,9 +450,19 @@ const filteredProducts = products.filter(product => {
                 onChange={e => setFormData({...formData, soLuong: e.target.value})} />
             </div>
 
-            <input type="number" placeholder="Giá bán" value={formData.gia} 
-              onChange={e => setFormData({...formData, gia: e.target.value})} />
-
+             <input
+            type="text"
+            placeholder="Giá bán"
+            value={formData.gia ? formatCurrency(formData.gia) + ' đ' : ''}
+            onChange={(e) => {
+              const rawValue = parseCurrency(e.target.value);
+              setFormData({
+                ...formData,
+                gia: rawValue
+              });
+            }}
+          />
+          
             <div className="row">
               <select value={formData.mainCat} onChange={e => setFormData({...formData, mainCat: e.target.value, subCat: categoriesConfig[e.target.value][0]})}>
                 <option value="caulong">Cầu lông</option>

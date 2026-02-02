@@ -1,9 +1,14 @@
+
+
+
 /* ===== CAROUSEL HERO ===== */
 .carousel-container {
   width: 100%;
   height:75vh; /* chiêu cao cố định */
   overflow: hidden;
   position: relative;
+  background: linear-gradient(180deg, #ffffff ,#2fe096, #17d888,#0b70cf,#1069dd, #fffffd);
+  
 }
 
 .carousel-track {
@@ -143,20 +148,21 @@
 
 /* FOOTER STYLES */
 .footer {
-  background-color: #1a1a1a;
-  color: #ffffff;
-  padding: 50px 0 20px 0;
-  margin-top: 50px;
+  background-color: linear-gradient(180deg, #ffffffcc ,#4d4646cc, #e6e5e5, #4d4646cc);
+  color: #000000;
+  padding: 0px 0;
+  margin-top: 20px;
   font-family: Arial, sans-serif;
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: 120px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 2fr));
   gap: 30px;
   padding: 0 20px;
+  
 }
 
 .footer-column h3 {
@@ -231,6 +237,7 @@
   padding: 20px 0;
   -webkit-user-select: none;
   user-select: none; /* Ngăn bôi đen văn bản khi kéo */
+  background: linear-gradient(180deg, #ffffff ,#0b92d1,rgba(6, 160, 207, 0.699),rgb(63, 9, 214),blue,rgb(63, 9, 214), #0b92d1, #ffffff);
 }
 
 .product-list-container:active {
@@ -251,14 +258,14 @@
 /* Wrapper dàn hàng ngang các item */
 .product-list-wrapper {
   display: flex;
-  gap: 20px;
-  padding: 0 50px; /* Tạo khoảng trống 2 đầu */
+  gap: 17px;
+  padding: 0 30px; /* Tạo khoảng trống 2 đầu */
 }
 
 /* Card sản phẩm */
 .product-card {
-  min-width: 250px; /* Độ rộng cố định của mỗi item */
-  max-width: 250px;
+  min-width: 190px; /* Độ rộng cố định của mỗi item */
+  max-width: 150px;
   background: #7c91b1;
   border-radius: 8px;
   overflow: hidden;
@@ -271,8 +278,8 @@
 }
 
 .product-image-wrapper img {
-  width: 10%;
-  height: 250px;
+  width: 100%;
+  height: 2px;
   object-fit: cover;
   display: block;
 }
@@ -291,12 +298,13 @@
 
 .product-name {
   font-weight: bold;
-  font-size: 15px;
+  font-size: 12px;
   margin-bottom: 8px;
   height: 40px; /* Giữ độ cao cố định cho tên */
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  white-space: normal;       /* QUAN TRỌNG */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
@@ -415,6 +423,28 @@
 }
 .sidebar-trigger-icon.icon-hidden {
     transform: translateX(-100px); 
+}
+
+
+/* Kích thước thanh cuộn */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Nền rãnh */
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+/* Thanh kéo */
+::-webkit-scrollbar-thumb {
+  background: #a19a9a;
+  border-radius: 10px;
+}
+
+/* Hover */
+::-webkit-scrollbar-thumb:hover {
+  background:linear-gradient(135deg, #206dd1 ,#2fe096, #7f1799, #aed421);
 }
 
 
