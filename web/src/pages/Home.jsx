@@ -2,6 +2,74 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link ,useNavigate} from "react-router-dom";
 import "./Home.css";
 
+const ProductSlider = ({ products, navigate }) => {
+  const scrollRef = useRef(null);
+  const [isDown, setIsDown] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleMouseDown = (e) => {
+    setIsDown(true);
+    setIsDragging(false);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDown) return;
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    if (Math.abs(x - startX) > 5) {
+      setIsDragging(true);
+    }
+    e.preventDefault();
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDown(false);
+  };
+
+  return (
+    <div
+      className="product-list-container"
+      ref={scrollRef}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseUp}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      style={{ overflowX: "hidden", cursor: isDown ? "grabbing" : "grab" }}
+    >
+      <div className="product-list-wrapper">
+        {products.map((item) => (
+          <Link
+            to={`/detail/${item._id}`}
+            key={item._id}
+            onClick={(e) => {
+              if (isDragging) e.preventDefault();
+            }}
+            className="product-card-link"
+            draggable="false"
+          >
+            <div className="product-card">
+              <div className="product-image-wrapper">
+                <img src={item.anhDaiDien} alt={item.tenSanPham} draggable="false" />
+              </div>
+              <div className="product-info">
+                <p className="product-brand">{item.tenThuongHieu}</p>
+                <p className="product-name">{item.tenSanPham}</p>
+                
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
 export default function Home() {
   const user = JSON.parse(localStorage.getItem("user"));
   console.log(user);
@@ -10,10 +78,8 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const [activeGroup, setActiveGroup] = useState("");
   const scrollRef = useRef(null);
-  const [isDown, setIsDown] = useState(false);    
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  
+  const [activeBrand, setActiveBrand] = useState(""); // Mặc định là rỗng (Tất cả)
   /* ================= CATEGORY MAP ================= */
   const GROUP_CATEGORY_MAP = {
     VOT: ["vot-cau-long", "vot-tennis"],
@@ -24,35 +90,7 @@ export default function Home() {
     PHUKIEN: ["phu-kien-cau-long", "phu-kien-tennis"],
     BALO:["balo-cau-long","balo-tennis"]
   };
-  // Hàm xử lý kéo chuột
-  const handleMouseDown = (e) => {
-    setIsDown(true);
-    setIsDragging(false); // Reset lại trạng thái khi mới nhấn xuống
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-  };
-
   
-
-  const handleMouseUp = () => {
-    setIsDown(false);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDown) return;
-    
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    
-    // Nếu di chuyển chuột hơn 5 pixel thì xác định là đang kéo (Drag)
-    if (Math.abs(x - startX) > 5) {
-      setIsDragging(true);
-    }
-    
-    e.preventDefault();
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
-
   const handleLinkClick = (e) => {
     if (isDragging) {
       e.preventDefault(); // Ngăn chuyển trang khi đang kéo
@@ -68,8 +106,15 @@ export default function Home() {
 
   /* ================= FILTER PRODUCTS ================= */
   const filteredProducts = products.filter((p) => {
-    if (!activeGroup) return true;
-    return GROUP_CATEGORY_MAP[activeGroup]?.includes(p.category);
+    // 1. Lọc theo Nhóm sản phẩm (Category)
+    const matchesGroup = !activeGroup || GROUP_CATEGORY_MAP[activeGroup]?.includes(p.category);
+  
+    // 2. Lọc theo Thương hiệu (Brand)
+    // Giả sử bạn lưu state thương hiệu là activeBrand
+    const matchesBrand = !activeBrand || p.tenThuongHieu?.toUpperCase() === activeBrand.toUpperCase();
+  
+    // Kết quả: Phải thỏa mãn cả 2 điều kiện
+    return matchesGroup && matchesBrand;
   });
 
   /* ================= SLIDER ================= */
@@ -163,41 +208,17 @@ export default function Home() {
       </div>
 
       {/* DANH SÁCH SẢN PHẨM */}
-     <div 
-      className="product-list-container"
-      ref={scrollRef}
-      onMouseDown={handleMouseDown}
-      onMouseLeave={() => setIsDown(false)}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
-    >
-      <div className="product-list-wrapper">
-        {filteredProducts.map((item) => (
-          <Link 
-            to={`/detail/${item._id}`} 
-            key={item._id}
-            onClick={handleLinkClick} // Thêm xử lý click ở đây
-            className="product-card-link"
-            draggable="false"        // Quan trọng: Chặn trình duyệt kéo Link
-          >
-            <div className="product-card">
-              <div className="product-image-wrapper">
-                <img 
-                  src={item.anhDaiDien} 
-                  alt={item.tenSanPham} 
-                  draggable="false" // Quan trọng: Chặn trình duyệt kéo Ảnh
-                />
-              </div>
-              <div className="product-info">
-                <p className="product-brand">{item.tenThuongHieu}</p>
-                <p className="product-name">{item.tenSanPham}</p>
-                <p className="product-price"> </p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <ProductSlider products={filteredProducts} navigate={navigate} />
+
+    <div className="brand-buttons" style={{ marginTop: '10px' }}>
+      <button className={activeBrand === "" ? "active" : ""} onClick={() => setActiveBrand("")}>TẤT CẢ HÃNG</button>
+      <button className={activeBrand === "YONEX" ? "active" : ""} onClick={() => setActiveBrand("YONEX")}>YONEX</button>
+      <button className={activeBrand === "VICTOR" ? "active" : ""} onClick={() => setActiveBrand("VICTOR")}>VICTOR</button>
+      <button className={activeBrand === "ASICS" ? "active" : ""} onClick={() => setActiveBrand("ASICS")}>ASICS</button>
+      <button className={activeBrand === "LINING" ? "active" : ""} onClick={() => setActiveBrand("LINING")}>LINING</button>
     </div>
+
+      <ProductSlider products={filteredProducts} navigate={navigate} /> 
 
       {/* BANNER SECTION */}
       <div className="banner-section">

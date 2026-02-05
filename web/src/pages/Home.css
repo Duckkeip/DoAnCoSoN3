@@ -29,12 +29,13 @@
 }
 
 /* ===== GENDER BUTTONS ===== */
-.gender-buttons {
+.gender-buttons,.brand-buttons {
   padding-bottom: -10px;
   text-align: center;
 }
 
-.gender-buttons button {
+.gender-buttons button,
+.brand-buttons button {
   padding: 12px 20px;
   margin: 0 10px;
   border: 1px solid #333;
@@ -45,7 +46,9 @@
 }
 
 .gender-buttons button.active,
-.gender-buttons button:hover {
+.gender-buttons button:hover,
+.brand-buttons button.active,
+.brand-buttons button:hover {
   background: #333;
   color: #fff;
 }
@@ -446,6 +449,8 @@
 ::-webkit-scrollbar-thumb:hover {
   background:linear-gradient(135deg, #206dd1 ,#2fe096, #7f1799, #aed421);
 }
+
+
 
 
 /* Responsive */
