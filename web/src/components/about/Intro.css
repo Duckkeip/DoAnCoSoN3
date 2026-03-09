@@ -1,0 +1,140 @@
+/* Tổng thể */
+.intro-page {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  /* Hero Section */
+.hero-section {
+    height: 60vh;
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=1000'); /* Thay link ảnh của bạn */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+  }
+  
+.hero-content h1 {
+    font-size: 3.5rem;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+  }
+  
+.cta-button {
+    padding: 12px 30px;
+    background: #2363b8;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  
+.cta-button:hover {
+    background: #1a4a8a;
+    transform: translateY(-3px);
+  }
+  
+  /* About Section */
+.about-details {
+    padding: 80px 10%;
+    background: #f9f9f9;
+  }
+  
+.section-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  
+.underline {
+    width: 60px;
+    height: 4px;
+    background: #2363b8;
+    margin: 10px auto;
+  }
+  
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+  }
+/* --- Intro.css --- */
+
+/* 1. Thiết lập trạng thái ban đầu cho các phần tử muốn fade-in */
+.fade-in-element {
+    opacity: 0;
+    transform: translateY(30px); /* Đẩy xuống 30px để tạo hiệu ứng trượt lên */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Thời gian chạy hiệu ứng: 0.8 giây */
+    will-change: opacity, transform; /* Tối ưu hóa hiệu năng cho trình duyệt */
+  }
+  
+  /* 2. Class này sẽ được React thêm vào bằng JavaScript khi người dùng cuộn đến */
+  .fade-in-element.active {
+    opacity: 1;
+    transform: translateY(0); /* Trở về vị trí ban đầu */
+  }
+  
+  /* 3. (Tùy chọn) Thêm độ trễ cho các thẻ thống kê để nó hiện lần lượt */
+  .stat-box:nth-child(1) { transition-delay: 0.2s; }
+  .stat-box:nth-child(2) { transition-delay: 0.4s; }
+  
+  /* Tái cấu trúc lại một chút phần stat-box để hiệu ứng mượt hơn (bỏ padding cũ đi nếu cần) */  
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  
+.stat-item span {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2363b8;
+  }
+.stats-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+.stat-box {
+    flex: 1;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: transform 0.3s ease;
+    border: 1px solid #eee;
+  }
+  
+  .stat-box:hover {
+    transform: translateY(-10px);
+    border-color: #2363b8;
+  }
+  
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2363b8;
+    margin-bottom: 5px;
+  }
+  /* Responsive cho điện thoại */
+  @media (max-width: 768px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero-content h1 {
+      font-size: 2.5rem;
+    }
+  }

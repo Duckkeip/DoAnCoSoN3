@@ -127,14 +127,20 @@
 }
 .admin-table {
   width: 100%;
+  /* Thêm dòng này để bọc viền ngoài */
+  border: 2px solid #ec04ec; 
+  /* Nếu muốn bo góc cho viền ngoài (tùy chọn) */
+  border-radius: 8px;
+  overflow: hidden;
   border-collapse: collapse;
   margin-top: 20px;
   font-size: 15px; /* Tăng nhẹ font chữ cho dễ đọc */
+  background: linear-gradient(to top, #a6adb8, #ffffff, #a6adb8, #a6adb8, #ffffff, #a6adb8, #a6adb8, #ffffff, #a6adb8, #a6adb8, #ffffff, #a6adb8);
 }
   
   .admin-table th,
   .admin-table td {
-    border: 1px solid #ddd;
+    
     padding: 15px;
     text-align: left;
     font-size: larger;
