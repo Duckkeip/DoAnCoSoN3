@@ -77,7 +77,7 @@ export default function Home() {
   /* ================= STATE ================= */
   const [products, setProducts] = useState([]);
   const [activeGroup, setActiveGroup] = useState("");
-  const scrollRef = useRef(null);
+  
   
   const [activeBrand, setActiveBrand] = useState(""); // Mặc định là rỗng (Tất cả)
   /* ================= CATEGORY MAP ================= */
@@ -91,11 +91,7 @@ export default function Home() {
     BALO:["balo-cau-long","balo-tennis"]
   };
   
-  const handleLinkClick = (e) => {
-    if (isDragging) {
-      e.preventDefault(); // Ngăn chuyển trang khi đang kéo
-    }
-  };
+  
   /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
     fetch("http://localhost:5000/api/products/sanpham")
