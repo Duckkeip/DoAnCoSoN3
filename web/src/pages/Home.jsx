@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link ,useNavigate} from "react-router-dom";
 import "./Home.css";
 
-const ProductSlider = ({ products, navigate }) => {
+const ProductSlider = ({ products  }) => {
   const scrollRef = useRef(null);
   const [isDown, setIsDown] = useState(false);
   const [startX, setStartX] = useState(0);
