@@ -153,6 +153,33 @@ router.post("/payos-webhook", async (req, res) => {
   }
 
   res.json({ success: true });
-});
+}); 
+// Route cập nhật đơn hàng thủ công dành cho localhost (không cần Webhook)
+router.put("/confirm-order/:orderCode", async (req, res) => {
+  try {
+    const database = await db();
+    const orderCode = Number(req.params.orderCode); // Lấy mã từ URL
 
+    // 1. Tìm đơn hàng theo mã PayOS
+    const order = await database.collection("donhang").findOne({ payosOrderCode: orderCode });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy đơn hàng" });
+    }
+
+    // 2. Cập nhật trạng thái
+    await database.collection("donhang").updateOne(
+      { _id: order._id },
+      { $set: { thanhtoan: true, status: "dathanhtoan" } }
+    );
+
+    // 3. Xóa giỏ hàng của user đó
+    await database.collection("giohang").deleteOne({ user_id: order.user });
+
+    res.json({ success: true, message: "Cập nhật thành công" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
 module.exports = router;
