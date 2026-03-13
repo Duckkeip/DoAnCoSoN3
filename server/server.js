@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const productRoutes = require("./routes/products");
@@ -6,7 +7,7 @@ const cartRoutes = require("./routes/cart");
 const payRoutes = require("./routes/pay");
 const db = require("./config/db");
 const adminRoutes = require("./routes/admin");
-require("dotenv").config();
+
 const path = require('path');
 
 

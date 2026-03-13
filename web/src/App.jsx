@@ -11,10 +11,12 @@ import Navbar from './components/Navbar.jsx'
 import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
 import DetailF from './components/products/detail/detail.jsx'
-import VnpayReturn from './components/vnpay/vnpayReturn'
+
 import Intro from './components/about/Intro.jsx'
 import News from './components/news/News.jsx'
 import Contact from './components/contact/Contact.jsx'
+import PaymentSuccess from "./components/payos/PaymentSuccess.jsx"; // Đường dẫn tới file vừa tạo
+
 const UserLayout = () => {
   return (
     <>
@@ -34,13 +36,12 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/detail/:pid" element={<DetailF />} />
           <Route path="/cart/:id" element={<Cart />} />
-          <Route path="/vnpay_return" element={<VnpayReturn />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/intro" element={<Intro />} />
           <Route path="/news" element={<News />} />
           <Route path="/contact" element={<Contact />} />
-          
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           
         </Route>
 

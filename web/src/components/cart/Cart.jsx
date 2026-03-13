@@ -10,7 +10,7 @@ function Cart() {
   const [total, setTotal] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [orderStatus, setOrderStatus] = useState(null);
-
+  
   useEffect(() => {
     if (!user_id) return;
     fetchCart();
@@ -241,32 +241,40 @@ function Cart() {
 
               <button className="btn-pay" onClick={async () => {
                   try {
+                    // Dữ liệu chuẩn bị cho PayOS (Tùy thuộc vào Backend của bạn định nghĩa)
                     const orderData = { 
-                      amount: orderStatus.tongtien, 
-                      order_id: orderStatus._id,
-                      bankCode: '', 
-                      language: 'vn', 
-                      user_id: user_id
+                      orderId: orderStatus._id, // ID đơn hàng từ DB của bạn
+                      amount: orderStatus.tongtien,
+                      description: `Thanh toán đơn hàng ${orderStatus._id.slice(-6)}`,
+                      items: orderStatus.chitietdonhang.map(item => ({
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price
+                      }))
                     };
 
-                    const res = await fetch(`http://localhost:5000/api/pay/create_payment_url`, {
+                    // Gọi API Backend đã tích hợp PayOS SDK
+                    const res = await fetch(`http://localhost:5000/api/pay/create-payos-checkout`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify(orderData),
                     });
 
                     const result = await res.json();
-                    if (result.success && result.url) {
-                      window.location.href = result.url; // Chuyển hướng trực tiếp để thanh toán
+
+                    // PayOS trả về checkoutUrl
+                    if (result.success && result.checkoutUrl) {
+                      window.location.href = result.checkoutUrl; 
                     } else {
-                      window.alert("💥 Lỗi tạo URL thanh toán");
+                      window.alert("💥 Lỗi tạo link thanh toán PayOS: " + (result.message || ""));
                     }
                   } catch (err) {
-                    console.error("💥 Lỗi thanh toán:", err);
+                    console.error("💥 Lỗi kết nối PayOS:", err);
+                    window.alert("Không thể kết nối đến máy chủ thanh toán.");
                   }
-                }}>
-                  Thanh toán VNPAY
-                </button>
+              }}>
+                Thanh toán qua PayOS
+              </button>
             </div>
           </div>
         </div>
