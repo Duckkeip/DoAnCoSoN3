@@ -19,8 +19,7 @@ function Products() {
 
   const [products, setProducts] = useState([]);
 
-  const queryParams = new URLSearchParams(location.search);
-  const searchKeyword = queryParams.get("search")?.toLowerCase() || "";
+  
   // Lấy giá trị từ URL
 
 

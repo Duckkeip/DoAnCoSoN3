@@ -11,7 +11,7 @@ function PaymentSuccess() {
   const orderCode = searchParams.get("orderCode");
 
   useEffect(() => {
-    // 1. Nếu khách bấm hủy
+    // 1. Nếu khách bấm hủya
     if (status === "CANCELLED") {
       window.alert("Thanh toán đã bị hủy.");
       navigate("/cart");
