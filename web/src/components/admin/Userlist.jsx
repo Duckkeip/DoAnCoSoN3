@@ -57,7 +57,6 @@ function UserList() {
             <th>Liên hệ</th>
             <th>Quyền hạn</th>
             <th>Trạng thái</th>
-            <th>Xác thực</th>
             <th>Thao tác</th>
           </tr>
         </thead>
@@ -77,7 +76,7 @@ function UserList() {
                   {user.tinhtrang === "active" ? "Hoạt động" : "Bị chặn"}
                 </span>
               </td>
-              <td style={{ textAlign: 'center' }}>{user.verified ? "✅" : "❌"}</td>
+              
               <td>
                 <button className="edit-btn" onClick={() => { setSelectedUser(user); setShowDetailModal(true); }}>Chi tiết</button>
                 <button className="delete-btn" onClick={() => handleDelete(user._id)}>Xóa</button>
