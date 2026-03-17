@@ -34,7 +34,8 @@ router.post("/register", async (req, res) => {
       password: passwordHash, // chỉ lưu password hash
       SDT,
       address,
-      role: "user", // mặc định là user
+      role: "user",
+      tinhtrang: "active", // mặc định là user
       ngayTao: new Date(),
     };
 
@@ -60,8 +61,16 @@ router.post("/login", async (req, res) => {
     const user = await users.findOne({
       $or: [{ email: identifier }, { username: identifier }],
     });
+
     if (!user)
       return res.status(400).json({ message: "Sai email hoặc mật khẩu" });
+
+    // ✅ KIỂM TRA TÀI KHOẢN BỊ KHÓA
+    if (user.tinhtrang === "blocked") {
+      return res.status(403).json({
+        message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để được hỗ trợ."
+      });
+    }
 
     // So sánh mật khẩu
     const match = await bcrypt.compare(password, user.password);

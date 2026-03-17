@@ -8,43 +8,72 @@ const fs = require('fs');
 
 const router = express.Router();
 
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const { mainCat, subCat } = req.body;
-    // Tạo đường dẫn: public/images/caulong/vot
     const dir = path.join(__dirname, `../../web/public/images/${mainCat}/${subCat}`);
     
-    // Tạo thư mục nếu chưa có
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     cb(null, dir);
   },
   filename: function (req, file, cb) {
-    
     cb(null, file.originalname);
   }
 });
 
 const upload = multer({ storage: storage });
-/* ========== USER ========== */
 
-// Lấy danh sách user
+/* ========== USER MANAGEMENT ========== */
+
+// 1. Lấy danh sách user (Lấy đầy đủ thông tin trừ password)
 router.get("/users", async (req, res) => {
-    const database = await db();
-    const users = await database.collection("users").find({}, { projection: { password: 0 } }).toArray();
-    res.json(users);
-  });
-  // Cập nhật trạng thái user
+    try {
+        const database = await db();
+        const users = await database.collection("users")
+            .find({})
+            .project({ password: 0 }) // Không gửi mật khẩu về client
+            .sort({ ngayTao: -1 })    // Mới nhất lên đầu
+            .toArray();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi lấy danh sách người dùng" });
+    }
+});
+
+// 2. Cập nhật trạng thái và xác thực (Gộp chung vào một API cho gọn)
 router.put("/users/:id/status", async (req, res) => {
-    const { status } = req.body; // active | block
-    await db.collection("users").updateOne(
-      { _id: new ObjectId(req.params.id) },
-      { $set: { status } }
-    );
-    res.json({ message: "Cập nhật trạng thái thành công" });
-  });
+    try {
+        const database = await db();
+        const { tinhtrang, verified } = req.body; // Lấy dữ liệu từ client
+        
+        const updateDoc = {};
+        if (tinhtrang !== undefined) updateDoc.tinhtrang = tinhtrang;
+        if (verified !== undefined) updateDoc.verified = verified;
+
+        const result = await database.collection("users").updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: updateDoc }
+        );
+
+        if (result.matchedCount === 0) return res.status(404).json({ message: "Không tìm thấy user" });
+        res.json({ message: "Cập nhật thông tin thành công" });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi server" });
+    }
+});
+
+// 3. Xóa người dùng
+router.delete("/users/:id", async (req, res) => {
+    try {
+        const database = await db();
+        await database.collection("users").deleteOne({ _id: new ObjectId(req.params.id) });
+        res.json({ message: "Đã xóa tài khoản vĩnh viễn" });
+    } catch (error) {
+        res.status(500).json({ message: "Không thể xóa người dùng" });
+    }
+});
   
 /* ===== PRODUCT ===== */
 
@@ -59,17 +88,14 @@ router.get("/products", async (req, res) => {
 
   let filter = {};
 
-  // Lọc category
   if (category) {
     filter.category = { $in: category.split(",") };
   }
 
-  // Lọc brand
   if (brand) {
     filter.brand = { $in: brand.split(",") };
   }
 
-  // Lọc giá
   if (minPrice || maxPrice) {
     filter.gia = {};
     if (minPrice) filter.gia.$gte = Number(minPrice);
@@ -101,14 +127,12 @@ router.post("/products", upload.single('image'), async (req, res) => {
   try {
     const database = await db();
     
-    // Lấy dữ liệu từ req.body (đã được Multer giải mã)
     const { 
       tenSanPham, category, tenDanhMuc, brand, 
       tenThuongHieu, gia, soLuong, moTa, trangThai,
       mainCat, subCat 
     } = req.body;
 
-    // Tên file thực tế do Multer tạo ra
     const fileName = req.file ? req.file.filename : "default.png";
 
     const newProduct = {
@@ -119,7 +143,6 @@ router.post("/products", upload.single('image'), async (req, res) => {
       tenThuongHieu,
       gia: Number(gia),
       soLuong: Number(soLuong),
-      // Cấu trúc đường dẫn chuẩn: /images/caulong/vot/vot1.png
       hinhAnh: [`/images/${mainCat}/${subCat}/${fileName}`],
       anhDaiDien: `/images/${mainCat}/${subCat}/${fileName}`,
       moTa,
@@ -135,15 +158,37 @@ router.post("/products", upload.single('image'), async (req, res) => {
   }
 });
 
-router.put("/products/:id", async (req, res) => {
-  const database = await db();
-  await database.collection("products").updateOne(
-    { _id: new ObjectId(req.params.id) },
-    { $set: req.body }
-  );
-  res.json({ message: "Cập nhật sản phẩm thành công" });
+// ✅ API CẬP NHẬT (ĐÃ FIX FORM DATA + IMAGE)
+router.put("/products/:id", upload.single('image'), async (req, res) => {
+  try {
+    const database = await db();
+    const updateData = { ...req.body };
+
+    // Nếu có ảnh mới thì cập nhật
+    if (req.file) {
+      const { mainCat, subCat } = req.body;
+      const fileName = req.file.filename;
+      updateData.anhDaiDien = `/images/${mainCat}/${subCat}/${fileName}`;
+      updateData.hinhAnh = [`/images/${mainCat}/${subCat}/${fileName}`];
+    }
+
+    // Convert kiểu dữ liệu (vì FormData gửi string)
+    if (updateData.gia) updateData.gia = Number(updateData.gia);
+    if (updateData.soLuong) updateData.soLuong = Number(updateData.soLuong);
+
+    await database.collection("products").updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: updateData }
+    );
+
+    res.json({ message: "Cập nhật sản phẩm thành công" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Lỗi cập nhật" });
+  }
 });
 
+// Xóa sản phẩm
 router.delete("/products/:id", async (req, res) => {
   const database = await db();
   await database.collection("products").deleteOne({ _id: new ObjectId(req.params.id) });

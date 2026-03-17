@@ -12,17 +12,15 @@ export default function Dashboard() {
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null); // Để lưu file khi chọn từ máy
-  const [preview, setPreview] = useState(null); // Đảm bảo dòng này có tồn tại
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
   
-  // Bộ lọc mở/ đong
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 7; // Số sản phẩm mỗi trang
+  const limit = 7;
   
   const formatCurrency = (value) => {
     if (!value) return '';
@@ -35,43 +33,45 @@ export default function Dashboard() {
 
   const [formData, setFormData] = useState({
     tenSanPham: '',
-    category: 'caulong', // Đổi từ 'Cầu lông' thành 'caulong'
-    loai: 'vot',         // Thêm giá trị mặc định cho loai
+    category: 'caulong',
+    loai: 'vot',
     tenThuongHieu: 'Asics',
     brand: 'asics',
     gia: '',
     anhDaiDien: '' 
-});
+  });
 
-const [filters, setFilters] = useState({
-  category: [],
-  brand: [],
-  priceRange: null,
-  rating: 0
-});
+  const [filters, setFilters] = useState({
+    category: [],
+    brand: [],
+    priceRange: null,
+    rating: 0
+  });
 
-const [dropdownOpen, setDropdownOpen] = useState({
-  category: false,
-  brand: false,
-  price: false
-});
-const categoryNameMap = {
-  "vot-cau-long": "Vợt Cầu Lông",
-  "ao-cau-long": "Áo Cầu Lông",
-  "giay-cau-long": "Giày Cầu Lông",
-  "balo-cau-long": "Balo Cầu Lông",
-  "phukien-cau-long": "Phụ Kiện Cầu Lông",
-  "quan-cau-long": "Quần Cầu Lông",
-  "tui-cau-long": "Túi Cầu Lông",
+  const [dropdownOpen, setDropdownOpen] = useState({
+    category: false,
+    brand: false,
+    price: false
+  });
 
-  "vot-tennis": "Vợt Tennis",
-  "ao-tennis": "Áo Tennis",
-  "giay-tennis": "Giày Tennis",
-  "balo-tennis": "Balo Tennis",
-  "phukien-tennis": "Phụ Kiện Tennis",
-  "quan-tennis": "Quần Tennis",
-  "tui-tennis": "Túi Tennis"
-};  
+  const categoryNameMap = {
+    "vot-cau-long": "Vợt Cầu Lông",
+    "ao-cau-long": "Áo Cầu Lông",
+    "giay-cau-long": "Giày Cầu Lông",
+    "balo-cau-long": "Balo Cầu Lông",
+    "phukien-cau-long": "Phụ Kiện Cầu Lông",
+    "quan-cau-long": "Quần Cầu Lông",
+    "tui-cau-long": "Túi Cầu Lông",
+
+    "vot-tennis": "Vợt Tennis",
+    "ao-tennis": "Áo Tennis",
+    "giay-tennis": "Giày Tennis",
+    "balo-tennis": "Balo Tennis",
+    "phukien-tennis": "Phụ Kiện Tennis",
+    "quan-tennis": "Quần Tennis",
+    "tui-tennis": "Túi Tennis"
+  };  
+
   const API_URL = "http://localhost:5000/api/admin/products"; 
 
   const buildQuery = () => {
@@ -116,34 +116,30 @@ const categoryNameMap = {
   }, [currentPage, filters]);
 
 
+  // ✅ FIX HANDLE SAVE (POST + PUT)
   const handleSave = async () => {
     const data = new FormData();
     
-    // 1. Tạo category dạng slug (vd: vot-cau-long)
-    // Lưu ý: Chúng ta đảo ngược subCat-mainCat và đổi tên cho khớp mẫu của bạn
     const categorySlug = `${formData.subCat}-${formData.mainCat}`
-      .replace('caulong', 'cau-long'); // Để ra đúng cau-long thay vì caulong
+      .replace('caulong', 'cau-long');
   
-    // 2. Tạo tenDanhMuc có dấu (vd: Vợt Cầu Lông)
     const dict = {
       caulong: "Cầu Lông", tennis: "Tennis", ao: "Áo", 
       balo: "Balo", giay: "Giày", phukien: "Phụ Kiện", 
       quan: "Quần", tui: "Túi", vot: "Vợt"
     };
+
     const tenDanhMuc = `${dict[formData.subCat]} ${dict[formData.mainCat]}`;
   
-    // 3. Append dữ liệu (Thứ tự quan trọng: Text trước, File sau)
     data.append("tenSanPham", formData.tenSanPham);
     data.append("category", categorySlug);
     data.append("tenDanhMuc", tenDanhMuc);
-    data.append("brand", formData.brand); // yonex
-    data.append("tenThuongHieu", formData.tenThuongHieu); // Yonex
+    data.append("brand", formData.brand);
+    data.append("tenThuongHieu", formData.tenThuongHieu);
     data.append("gia", formData.gia);
     data.append("soLuong", formData.soLuong);
     data.append("moTa", formData.moTa);
     data.append("trangThai", "dang-ban");
-    
-    // Gửi thông tin bổ sung để Backend biết đường dẫn lưu file
     data.append("mainCat", formData.mainCat); 
     data.append("subCat", formData.subCat);
   
@@ -152,19 +148,27 @@ const categoryNameMap = {
     }
   
     try {
-      await axios.post(API_URL, data, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      alert("Lưu thành công!");
+      if (editingProduct) {
+        await axios.put(`${API_URL}/${editingProduct._id}`, data, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        alert("Cập nhật thành công!");
+      } else {
+        await axios.post(API_URL, data, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        alert("Lưu thành công!");
+      }
+      
       fetchProducts();
       closeModal();
     } catch (error) {
       console.error("Lỗi:", error);
+      alert("Có lỗi xảy ra!");
     }
   };
 
 
-  // 3. XÓA SẢN PHẨM
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
       try {
@@ -177,25 +181,35 @@ const categoryNameMap = {
     }
   };
 
+  // ✅ FIX OPEN EDIT
   const openEdit = (product) => {
     setEditingProduct(product);
+
+    const parts = product.category.split('-'); 
+
     setFormData({ 
-      name: product.tenSanPham, 
-      category: product.category, 
+      tenSanPham: product.tenSanPham, 
+      mainCat: parts.includes('cau') ? 'caulong' : 'tennis', 
+      subCat: parts[0],
       brand: product.brand,
-      price: product.gia, 
-      image: product.anhDaiDien 
+      tenThuongHieu: product.tenThuongHieu,
+      gia: product.gia, 
+      soLuong: product.soLuong || 0,
+      moTa: product.moTa || ''
     });
+
+    setPreview(product.anhDaiDien);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setEditingProduct(null);
     setSelectedFile(null);
     setPreview(null);
     setFormData({ tenSanPham: '', mainCat: 'caulong', subCat: 'vot', brand: '', gia: '', soLuong: '', moTa: '', trangThai: 'dang-ban' });
   };
-  //hàm render phân trang
+
   const renderPagination = () => (
     <div className="pagination">
       <button 
@@ -227,63 +241,50 @@ const categoryNameMap = {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // 1. Lưu file thực tế để gửi lên server bằng FormData
       setSelectedFile(file);
-  
-      // 2. Tạo URL tạm thời để hiển thị ảnh ngay lập tức
       const previewUrl = URL.createObjectURL(file);
       setPreview(previewUrl);
     }
   };
 
-  // Hàm xử lý chọn cho Mảng (Category, Brand)
-const handleSelect = (type, value) => {
-  setFilters(prev => {
-    const current = prev[type];
-    const isExist = current.includes(value);
-    return {
-      ...prev,
-      [type]: isExist ? current.filter(item => item !== value) : [...current, value]
-    };
+  const handleSelect = (type, value) => {
+    setFilters(prev => {
+      const current = prev[type];
+      const isExist = current.includes(value);
+      return {
+        ...prev,
+        [type]: isExist ? current.filter(item => item !== value) : [...current, value]
+      };
+    });
+  };
+
+  const handlePriceSelect = (range) => {
+    setFilters(prev => ({ ...prev, priceRange: range }));
+  };  
+
+  const filteredProducts = products.filter(product => {
+    if (
+      filters.category.length > 0 &&
+      !filters.category.includes(product.category)
+    ) return false;
+
+    if (
+      filters.brand.length > 0 &&
+      !filters.brand.includes(product.brand)
+    ) return false;
+
+    if (filters.priceRange) {
+      const price = Number(product.gia);
+      const [min, max] = filters.priceRange;
+      if (price < min || price > max) return false;
+    }
+
+    if (filters.rating > 0 && product.rating < filters.rating) {
+      return false;
+    }
+
+    return true;
   });
-};
-
-// Hàm xử lý chọn Giá
-const handlePriceSelect = (range) => {
-  setFilters(prev => ({ ...prev, priceRange: range }));
-};  
-
-
-//lọc
-const filteredProducts = products.filter(product => {
-  // 1. Lọc category
-  if (
-    filters.category.length > 0 &&
-    !filters.category.includes(product.category)
-  ) return false;
-
-  // 2. Lọc brand
-  if (
-    filters.brand.length > 0 &&
-    !filters.brand.includes(product.brand)
-  ) return false;
-
-  // 3. Lọc giá
-  if (filters.priceRange) {
-    const price = Number(product.gia);
-    const [min, max] = filters.priceRange;
-
-    if (price < min || price > max) return false;
-  }
-
-  // 4. Lọc rating (nếu có)
-  if (filters.rating > 0 && product.rating < filters.rating) {
-    return false;
-  }
-
-  return true;
-});
-
 
   return (  
     
