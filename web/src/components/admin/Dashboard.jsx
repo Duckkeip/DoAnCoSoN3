@@ -48,11 +48,6 @@ export default function Dashboard() {
     rating: 0
   });
 
-  const [dropdownOpen, setDropdownOpen] = useState({
-    category: false,
-    brand: false,
-    price: false
-  });
 
   const categoryNameMap = {
     "vot-cau-long": "Vợt Cầu Lông",
@@ -175,8 +170,9 @@ export default function Dashboard() {
         await axios.delete(`${API_URL}/${id}`);
         fetchProducts();
         alert("Xóa sản phẩm thành công!");
-      } catch (error) {
-        alert("Không thể xóa sản phẩm!");
+      }catch (error) {
+        console.error("Lỗi:", error);
+        alert("Xóa sản phẩm thất bại!");
       }
     }
   };
@@ -262,29 +258,7 @@ export default function Dashboard() {
     setFilters(prev => ({ ...prev, priceRange: range }));
   };  
 
-  const filteredProducts = products.filter(product => {
-    if (
-      filters.category.length > 0 &&
-      !filters.category.includes(product.category)
-    ) return false;
-
-    if (
-      filters.brand.length > 0 &&
-      !filters.brand.includes(product.brand)
-    ) return false;
-
-    if (filters.priceRange) {
-      const price = Number(product.gia);
-      const [min, max] = filters.priceRange;
-      if (price < min || price > max) return false;
-    }
-
-    if (filters.rating > 0 && product.rating < filters.rating) {
-      return false;
-    }
-
-    return true;
-  });
+  
 
   return (  
     
