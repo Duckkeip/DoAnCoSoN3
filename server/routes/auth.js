@@ -5,8 +5,6 @@ const jwt = require("jsonwebtoken");
 
 const connectDB = require("../config/db");
 
-
-// ===== ĐĂNG KÝ =====
 router.post("/register", async (req, res) => {
   try {
     const db = await connectDB();
@@ -14,28 +12,26 @@ router.post("/register", async (req, res) => {
 
     const { username, email, password, SDT, address } = req.body;
 
-    // Kiểm tra trùng email
     const existingEmail = await users.findOne({ email });
-    if (existingEmail)
+    if (existingEmail) {
       return res.status(400).json({ message: "Email đã được sử dụng" });
+    }
 
-    // Kiểm tra trùng username
     const existingUsername = await users.findOne({ username });
-    if (existingUsername)
+    if (existingUsername) {
       return res.status(400).json({ message: "Username đã tồn tại" });
+    }
 
-    // Hash mật khẩu
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Tạo user mới
     const newUser = {
       username,
       email,
-      password: passwordHash, // chỉ lưu password hash
+      password: passwordHash,
       SDT,
       address,
       role: "user",
-      tinhtrang: "active", // mặc định là user
+      tinhtrang: "active",
       ngayTao: new Date(),
     };
 
@@ -43,41 +39,37 @@ router.post("/register", async (req, res) => {
 
     res.json({ message: "Đăng ký thành công!" });
   } catch (err) {
-    console.error("💥 Lỗi đăng ký:", err);
+    console.error(err);
     res.status(500).json({ message: "Lỗi server khi đăng ký." });
   }
 });
 
-// ===== ĐĂNG NHẬP =====
 router.post("/login", async (req, res) => {
   try {
-
     const db = await connectDB();
     const users = db.collection("users");
 
     const { identifier, password } = req.body;
 
-    // Cho phép đăng nhập bằng username hoặc email
     const user = await users.findOne({
       $or: [{ email: identifier }, { username: identifier }],
     });
 
-    if (!user)
+    if (!user) {
       return res.status(400).json({ message: "Sai email hoặc mật khẩu" });
+    }
 
-    // ✅ KIỂM TRA TÀI KHOẢN BỊ KHÓA
     if (user.tinhtrang === "blocked") {
       return res.status(403).json({
         message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin để được hỗ trợ."
       });
     }
 
-    // So sánh mật khẩu
     const match = await bcrypt.compare(password, user.password);
-    if (!match)
+    if (!match) {
       return res.status(400).json({ message: "Sai email hoặc mật khẩu" });
+    }
 
-    // Tạo JWT token
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
       process.env.JWT_SECRET || "MY_SECRET_KEY",
@@ -95,7 +87,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("💥 Lỗi đăng nhập:", err);
+    console.error(err);
     res.status(500).json({ message: "Lỗi server khi đăng nhập." });
   }
 });

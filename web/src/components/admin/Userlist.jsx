@@ -6,8 +6,9 @@ function UserList() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({});
 
-  // Load danh sách ngay khi vào trang
   const fetchUsers = async () => {
     try {
       const res = await api.get("/admin/users");
@@ -17,20 +18,32 @@ function UserList() {
     }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  // Xử lý cập nhật (Trạng thái hoặc Xác thực)
-  const handleUpdate = async (data) => {
+  const handleUpdate = async () => {
     try {
-      const res = await api.put(`/admin/users/${selectedUser._id}/status`, data);
-      alert(res.data.message);
-      
-      // Cập nhật state cục bộ để UI thay đổi ngay lập tức
-      const updatedUser = { ...selectedUser, ...data };
-      setUsers(users.map(u => u._id === selectedUser._id ? updatedUser : u));
-      setSelectedUser(updatedUser);
+      await api.put(`/admin/users/${selectedUser._id}`, formData);
+      alert("Cập nhật thành công!");
+      fetchUsers();
+      setShowDetailModal(false);
     } catch (error) {
-      console.error("Lỗi:", error);
+      console.error(error);
+      alert("Thao tác thất bại");
+    }
+  };
+
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/admin/users", formData);
+      alert("Đã thêm người dùng mới");
+      fetchUsers();
+      setShowAddModal(false);
+      setFormData({});
+    } catch (err) {
+      alert(err.response?.data?.message || "Lỗi khi thêm");
     }
   };
 
@@ -40,7 +53,9 @@ function UserList() {
       await api.delete(`/admin/users/${id}`);
       setUsers(users.filter((u) => u._id !== id));
       alert("Đã xóa tài khoản.");
-    } catch (error) { console.error(error); }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -48,6 +63,16 @@ function UserList() {
       <div className="admin-header-actions">
         <h2>👥 QUẢN LÝ NGƯỜI DÙNG</h2>
         <p>Tổng cộng: {users.length} tài khoản</p>
+
+        <button
+          className="add-btn"
+          onClick={() => {
+            setFormData({});
+            setShowAddModal(true);
+          }}
+        >
+          + Thêm người dùng
+        </button>
       </div>
 
       <table className="admin-table">
@@ -57,29 +82,57 @@ function UserList() {
             <th>Liên hệ</th>
             <th>Quyền hạn</th>
             <th>Trạng thái</th>
+            <th>Xác thực</th>
             <th>Thao tác</th>
           </tr>
         </thead>
+
         <tbody>
           {users.map((user) => (
             <tr key={user._id}>
               <td>
-                <div style={{fontWeight: 'bold'}}>{user.username}</div>
-                <div style={{fontSize: '12px', color: '#666'}}>{user.email}</div>
+                <div style={{ fontWeight: "bold" }}>{user.username}</div>
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  {user.email}
+                </div>
               </td>
+
+              <td>{user.SDT || "Chưa cập nhật"}</td>
+
               <td>
-                <div>{user.SDT || "Chưa cập nhật"}</div>
+                <span className={`role-badge ${user.role}`}>
+                  {user.role?.toUpperCase()}
+                </span>
               </td>
-              <td><span className={`role-badge ${user.role}`}>{user.role?.toUpperCase()}</span></td>
+
               <td>
-                <span className={`status-badge ${user.tinhtrang || 'pending'}`}>
+                <span className={`status-badge ${user.tinhtrang || "pending"}`}>
                   {user.tinhtrang === "active" ? "Hoạt động" : "Bị chặn"}
                 </span>
               </td>
-              
+
+              <td style={{ textAlign: "center" }}>
+                {user.verified ? "✅" : "❌"}
+              </td>
+
               <td>
-                <button className="edit-btn" onClick={() => { setSelectedUser(user); setShowDetailModal(true); }}>Chi tiết</button>
-                <button className="delete-btn" onClick={() => handleDelete(user._id)}>Xóa</button>
+                <button
+                  className="edit-btn"
+                  onClick={() => {
+                    setSelectedUser(user);
+                    setFormData(user);
+                    setShowDetailModal(true);
+                  }}
+                >
+                  Chi tiết & Sửa
+                </button>
+
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(user._id)}
+                >
+                  Xóa
+                </button>
               </td>
             </tr>
           ))}
@@ -89,29 +142,200 @@ function UserList() {
       {showDetailModal && selectedUser && (
         <div className="admin-modal">
           <div className="modal-content">
-            <h3>Hồ sơ người dùng</h3>
+            <h3>Hồ sơ & Chỉnh sửa</h3>
             <hr />
+
             <div className="user-info-grid">
               <p><strong>ID:</strong> {selectedUser._id}</p>
-              <p><strong>Ngày tham gia:</strong> {new Date(selectedUser.ngayTao).toLocaleDateString('vi-VN')}</p>
-              <p><strong>Số điện thoại:</strong> {selectedUser.SDT || "N/A"}</p>
-              <p><strong>Địa chỉ:</strong> {selectedUser.address || "Chưa thiết lập"}</p>
+              <p>
+                <strong>Ngày tham gia:</strong>{" "}
+                {new Date(selectedUser.ngayTao).toLocaleDateString("vi-VN")}
+              </p>
             </div>
 
-            <div className="modal-actions" style={{ marginTop: '20px' }}>
-              {selectedUser.tinhtrang === "blocked" ? (
-                <button className="save-btn" onClick={() => handleUpdate({ tinhtrang: "active" })}>Mở khóa tài khoản</button>
-              ) : (
-                <button className="delete-btn" onClick={() => handleUpdate({ tinhtrang: "blocked" })}>Chặn truy cập</button>
-              )}
-              
-              {!selectedUser.verified && (
-                <button className="add-btn" onClick={() => handleUpdate({ verified: true })}>Xác minh Email</button>
-              )}
-              
-              <button className="cancel-btn" onClick={() => setShowDetailModal(false)}>Đóng</button>
+            <div className="user-edit-form">
+              <label>Họ tên:</label>
+              <input
+                type="text"
+                value={formData.username || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
+              />
+
+              <label>Email:</label>
+              <input
+                type="email"
+                value={formData.email || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+              />
+
+              <label>Số điện thoại:</label>
+              <input
+                type="text"
+                value={formData.SDT || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, SDT: e.target.value })
+                }
+              />
+
+              <label>Địa chỉ:</label>
+              <textarea
+                value={formData.address || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+              />
+
+              <label>Quyền hạn:</label>
+              <select
+                value={formData.role || "user"}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+              >
+                <option value="user">USER</option>
+                <option value="admin">ADMIN</option>
+              </select>
+
+              <label>Trạng thái:</label>
+              <select
+                value={formData.tinhtrang || "active"}
+                onChange={(e) =>
+                  setFormData({ ...formData, tinhtrang: e.target.value })
+                }
+              >
+                <option value="active">Hoạt động</option>
+                <option value="blocked">Chặn</option>
+              </select>
+
+              <label>Xác thực:</label>
+              <select
+                value={formData.verified ? "true" : "false"}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    verified: e.target.value === "true",
+                  })
+                }
+              >
+                <option value="true">Đã xác thực</option>
+                <option value="false">Chưa xác thực</option>
+              </select>
+            </div>
+
+            <div className="modal-actions">
+              <button className="save-btn" onClick={handleUpdate}>
+                Lưu thay đổi
+              </button>
+              <button
+                className="cancel-btn"
+                onClick={() => setShowDetailModal(false)}
+              >
+                Đóng
+              </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showAddModal && (
+        <div className="admin-modal">
+          <form className="modal-content" onSubmit={handleAddUser}>
+            <h3>Tạo tài khoản mới</h3>
+
+            <div className="user-edit-form">
+              <label>Tên đăng nhập:</label>
+              <input
+                type="text"
+                required
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
+              />
+
+              <label>Email:</label>
+              <input
+                type="email"
+                required
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+              />
+
+              <label>Mật khẩu:</label>
+              <input
+                type="password"
+                required
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
+
+              <label>Số điện thoại:</label>
+              <input
+                type="text"
+                onChange={(e) =>
+                  setFormData({ ...formData, SDT: e.target.value })
+                }
+              />
+
+              <label>Địa chỉ:</label>
+              <textarea
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+              />
+
+              <label>Quyền hạn:</label>
+              <select
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+              >
+                <option value="user">USER</option>
+                <option value="admin">ADMIN</option>
+              </select>
+
+              <label>Trạng thái:</label>
+              <select
+                onChange={(e) =>
+                  setFormData({ ...formData, tinhtrang: e.target.value })
+                }
+              >
+                <option value="active">Hoạt động</option>
+                <option value="blocked">Chặn</option>
+              </select>
+
+              <label>Xác thực:</label>
+              <select
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    verified: e.target.value === "true",
+                  })
+                }
+              >
+                <option value="true">Đã xác thực</option>
+                <option value="false">Chưa xác thực</option>
+              </select>
+            </div>
+
+            <div className="modal-actions">
+              <button type="submit" className="add-btn">
+                Xác nhận thêm
+              </button>
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={() => setShowAddModal(false)}
+              >
+                Hủy
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

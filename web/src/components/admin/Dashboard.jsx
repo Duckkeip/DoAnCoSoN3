@@ -48,7 +48,7 @@ export default function Dashboard() {
     rating: 0
   });
 
-
+  
   const categoryNameMap = {
     "vot-cau-long": "Vợt Cầu Lông",
     "ao-cau-long": "Áo Cầu Lông",
@@ -170,9 +170,9 @@ export default function Dashboard() {
         await axios.delete(`${API_URL}/${id}`);
         fetchProducts();
         alert("Xóa sản phẩm thành công!");
-      }catch (error) {
-        console.error("Lỗi:", error);
-        alert("Xóa sản phẩm thất bại!");
+      } catch (error) {
+        console.error(error);
+        alert("Không thể xóa sản phẩm!");
       }
     }
   };
@@ -355,7 +355,9 @@ export default function Dashboard() {
               <th>Tên sản phẩm</th>
               <th>Phân loại</th>
               <th>Thương hiệu</th>
+              <th>Số lượng</th>
               <th>Giá</th>
+              <th>Mô tả</th>
               <th>Thao tác</th>
             </tr>
           </thead>
@@ -367,7 +369,11 @@ export default function Dashboard() {
                 <td>{p.tenSanPham}</td>
                 <td><span className="badge">{p.category}</span></td>
                 <td>{p.brand}</td>
+                <td style={{ textAlign: 'center' }}>{p.soLuong || 0}</td>
                 <td>{Number(p.gia).toLocaleString()}đ</td>
+                <td className="description-cell">
+                  {p.moTa ? (p.moTa.substring(0, 30) + "...") : "Chưa có mô tả"}
+                </td>
                 <td>
                   <button className="edit-btn" onClick={() => openEdit(p)}>Sửa</button>
                   <button className="delete-btn" onClick={() => handleDelete(p._id)}>Xóa</button>

@@ -1,10 +1,11 @@
 const express = require("express");
 const { ObjectId } = require("mongodb");
 const db = require("../config/db");
+const bcrypt = require("bcrypt");
 
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const router = express.Router();
 
@@ -12,10 +13,11 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const { mainCat, subCat } = req.body;
     const dir = path.join(__dirname, `../../web/public/images/${mainCat}/${subCat}`);
-    
+
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
+
     cb(null, dir);
   },
   filename: function (req, file, cb) {
@@ -25,57 +27,86 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-/* ========== USER MANAGEMENT ========== */
-
-// 1. Lấy danh sách user (Lấy đầy đủ thông tin trừ password)
 router.get("/users", async (req, res) => {
-    try {
-        const database = await db();
-        const users = await database.collection("users")
-            .find({})
-            .project({ password: 0 }) // Không gửi mật khẩu về client
-            .sort({ ngayTao: -1 })    // Mới nhất lên đầu
-            .toArray();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ message: "Lỗi lấy danh sách người dùng" });
-    }
+  try {
+    const database = await db();
+    const users = await database
+      .collection("users")
+      .find({})
+      .project({ password: 0 })
+      .sort({ ngayTao: -1 })
+      .toArray();
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi lấy danh sách người dùng" });
+  }
 });
 
-// 2. Cập nhật trạng thái và xác thực (Gộp chung vào một API cho gọn)
-router.put("/users/:id/status", async (req, res) => {
-    try {
-        const database = await db();
-        const { tinhtrang, verified } = req.body; // Lấy dữ liệu từ client
-        
-        const updateDoc = {};
-        if (tinhtrang !== undefined) updateDoc.tinhtrang = tinhtrang;
-        if (verified !== undefined) updateDoc.verified = verified;
+router.post("/users", async (req, res) => {
+  try {
+    const database = await db();
+    const { username, email, password, role, SDT, address } = req.body;
 
-        const result = await database.collection("users").updateOne(
-            { _id: new ObjectId(req.params.id) },
-            { $set: updateDoc }
-        );
+    const existing = await database.collection("users").findOne({ email });
+    if (existing) return res.status(400).json({ message: "Email đã tồn tại" });
 
-        if (result.matchedCount === 0) return res.status(404).json({ message: "Không tìm thấy user" });
-        res.json({ message: "Cập nhật thông tin thành công" });
-    } catch (error) {
-        res.status(500).json({ message: "Lỗi server" });
-    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = {
+      username,
+      email,
+      password: hashedPassword,
+      role: role || "user",
+      SDT: SDT || "",
+      address: address || "",
+      tinhtrang: "active",
+      verified: req.body.verified === true || req.body.verified === "true",
+      ngayTao: new Date()
+    };
+
+    await database.collection("users").insertOne(newUser);
+    res.json({ message: "Thêm người dùng thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server" });
+  }
 });
 
-// 3. Xóa người dùng
+router.put("/users/:id", async (req, res) => {
+  try {
+    const database = await db();
+    const updateData = { ...req.body };
+
+    delete updateData._id;
+
+    const result = await database.collection("users").updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: updateData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Không tìm thấy user" });
+    }
+
+    res.json({ message: "Cập nhật thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
 router.delete("/users/:id", async (req, res) => {
-    try {
-        const database = await db();
-        await database.collection("users").deleteOne({ _id: new ObjectId(req.params.id) });
-        res.json({ message: "Đã xóa tài khoản vĩnh viễn" });
-    } catch (error) {
-        res.status(500).json({ message: "Không thể xóa người dùng" });
-    }
+  try {
+    const database = await db();
+    await database.collection("users").deleteOne({
+      _id: new ObjectId(req.params.id)
+    });
+
+    res.json({ message: "Đã xóa tài khoản vĩnh viễn" });
+  } catch (error) {
+    res.status(500).json({ message: "Không thể xóa người dùng" });
+  }
 });
-  
-/* ===== PRODUCT ===== */
 
 router.get("/products", async (req, res) => {
   const database = await db();
@@ -105,7 +136,8 @@ router.get("/products", async (req, res) => {
   try {
     const total = await database.collection("products").countDocuments(filter);
 
-    const products = await database.collection("products")
+    const products = await database
+      .collection("products")
       .find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -122,15 +154,22 @@ router.get("/products", async (req, res) => {
   }
 });
 
-// API Thêm sản phẩm
-router.post("/products", upload.single('image'), async (req, res) => {
+router.post("/products", upload.single("image"), async (req, res) => {
   try {
     const database = await db();
-    
-    const { 
-      tenSanPham, category, tenDanhMuc, brand, 
-      tenThuongHieu, gia, soLuong, moTa, trangThai,
-      mainCat, subCat 
+
+    const {
+      tenSanPham,
+      category,
+      tenDanhMuc,
+      brand,
+      tenThuongHieu,
+      gia,
+      soLuong,
+      moTa,
+      trangThai,
+      mainCat,
+      subCat
     } = req.body;
 
     const fileName = req.file ? req.file.filename : "default.png";
@@ -158,21 +197,19 @@ router.post("/products", upload.single('image'), async (req, res) => {
   }
 });
 
-// ✅ API CẬP NHẬT (ĐÃ FIX FORM DATA + IMAGE)
-router.put("/products/:id", upload.single('image'), async (req, res) => {
+router.put("/products/:id", upload.single("image"), async (req, res) => {
   try {
     const database = await db();
     const updateData = { ...req.body };
 
-    // Nếu có ảnh mới thì cập nhật
     if (req.file) {
       const { mainCat, subCat } = req.body;
       const fileName = req.file.filename;
+
       updateData.anhDaiDien = `/images/${mainCat}/${subCat}/${fileName}`;
       updateData.hinhAnh = [`/images/${mainCat}/${subCat}/${fileName}`];
     }
 
-    // Convert kiểu dữ liệu (vì FormData gửi string)
     if (updateData.gia) updateData.gia = Number(updateData.gia);
     if (updateData.soLuong) updateData.soLuong = Number(updateData.soLuong);
 
@@ -188,11 +225,18 @@ router.put("/products/:id", upload.single('image'), async (req, res) => {
   }
 });
 
-// Xóa sản phẩm
 router.delete("/products/:id", async (req, res) => {
-  const database = await db();
-  await database.collection("products").deleteOne({ _id: new ObjectId(req.params.id) });
-  res.json({ message: "Xóa sản phẩm thành công" });
+  try {
+    const database = await db();
+
+    await database.collection("products").deleteOne({
+      _id: new ObjectId(req.params.id)
+    });
+
+    res.json({ message: "Xóa sản phẩm thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server" });
+  }
 });
 
 module.exports = router;
