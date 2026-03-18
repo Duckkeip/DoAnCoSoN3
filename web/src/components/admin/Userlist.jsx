@@ -24,7 +24,9 @@ function UserList() {
 
   const handleUpdate = async () => {
     try {
-      await api.put(`/admin/users/${selectedUser._id}`, formData);
+      // Loại bỏ hoàn toàn trường verified trước khi gửi lên server
+      const { verified, ...dataToUpdate } = formData;
+      await api.put(`/admin/users/${selectedUser._id}`, dataToUpdate);
       alert("Cập nhật thành công!");
       fetchUsers();
       setShowDetailModal(false);
@@ -37,7 +39,9 @@ function UserList() {
   const handleAddUser = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/admin/users", formData);
+      // Loại bỏ verified khỏi form data khi thêm mới
+      const { verified, ...dataToAdd } = formData;
+      await api.post("/admin/users", dataToAdd);
       alert("Đã thêm người dùng mới");
       fetchUsers();
       setShowAddModal(false);
@@ -82,7 +86,7 @@ function UserList() {
             <th>Liên hệ</th>
             <th>Quyền hạn</th>
             <th>Trạng thái</th>
-            <th>Xác thực</th>
+            {/* Cột Xác thực đã được xóa */}
             <th>Thao tác</th>
           </tr>
         </thead>
@@ -109,10 +113,6 @@ function UserList() {
                 <span className={`status-badge ${user.tinhtrang || "pending"}`}>
                   {user.tinhtrang === "active" ? "Hoạt động" : "Bị chặn"}
                 </span>
-              </td>
-
-              <td style={{ textAlign: "center" }}>
-                {user.verified ? "✅" : "❌"}
               </td>
 
               <td>
@@ -210,20 +210,7 @@ function UserList() {
                 <option value="active">Hoạt động</option>
                 <option value="blocked">Chặn</option>
               </select>
-
-              <label>Xác thực:</label>
-              <select
-                value={formData.verified ? "true" : "false"}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    verified: e.target.value === "true",
-                  })
-                }
-              >
-                <option value="true">Đã xác thực</option>
-                <option value="false">Chưa xác thực</option>
-              </select>
+              {/* Select Xác thực đã xóa */}
             </div>
 
             <div className="modal-actions">
@@ -308,19 +295,7 @@ function UserList() {
                 <option value="active">Hoạt động</option>
                 <option value="blocked">Chặn</option>
               </select>
-
-              <label>Xác thực:</label>
-              <select
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    verified: e.target.value === "true",
-                  })
-                }
-              >
-                <option value="true">Đã xác thực</option>
-                <option value="false">Chưa xác thực</option>
-              </select>
+              {/* Select Xác thực đã xóa */}
             </div>
 
             <div className="modal-actions">

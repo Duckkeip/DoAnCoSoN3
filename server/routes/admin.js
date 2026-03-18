@@ -62,7 +62,6 @@ router.post("/users", async (req, res) => {
       SDT: SDT || "",
       address: address || "",
       tinhtrang: "active",
-      verified: req.body.verified === true || req.body.verified === "true",
       ngayTao: new Date()
     };
 
