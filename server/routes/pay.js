@@ -109,7 +109,6 @@ router.post("/create-payos-checkout", async (req, res) => {
 
     const paymentLink = await payos.paymentRequests.create(body);
 
-    // Lưu lại orderCode của PayOS vào đơn hàng trong DB để đối soát sau này
     const database = await db();
     await database.collection("donhang").updateOne(
       { _id: new ObjectId(orderId) },

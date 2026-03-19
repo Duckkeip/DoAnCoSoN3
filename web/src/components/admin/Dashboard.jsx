@@ -62,7 +62,7 @@ export default function Dashboard() {
     "ao-tennis": "Áo Tennis",
     "giay-tennis": "Giày Tennis",
     "balo-tennis": "Balo Tennis",
-    "phukien-tennis": "Phụ Kiện Tennis",
+    "phu-kien-tennis": "Phụ Kiện Tennis",
     "quan-tennis": "Quần Tennis",
     "tui-tennis": "Túi Tennis"
   };  
