@@ -30,8 +30,7 @@ function UserList() {
       alert("Cập nhật thành công!");
       fetchUsers();
       setShowDetailModal(false);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
       alert("Thao tác thất bại");
     }
   };

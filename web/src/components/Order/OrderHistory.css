@@ -1,0 +1,130 @@
+/* Container */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Card */
+.order-list .card {
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.order-list .card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Header */
+.order-list .card-header {
+  font-size: 14px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  border-bottom: none;
+  padding: 12px 16px;
+}
+
+/* Body */
+.order-list .card-body {
+  padding: 16px;
+}
+
+/* Product item */
+.order-list .d-flex {
+  transition: 0.2s;
+}
+
+.order-list .d-flex:hover {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+/* Product image */
+.order-list img {
+  border-radius: 8px;
+  background: #f3f4f6;
+  padding: 5px;
+}
+
+/* Product name */
+.order-list p.fw-bold {
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Price text */
+.order-list small {
+  font-size: 12px;
+}
+
+/* Right side info */
+.order-list .col-md-4 {
+  padding-left: 20px;
+}
+
+/* Total price */
+.order-list .text-danger {
+  font-weight: 700;
+}
+
+/* Status */
+.status-pending {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #d97706;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-success {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-cancel {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Address */
+.order-list .text-muted {
+  font-size: 12px;
+}
+
+/* Empty state */
+.container p {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-list .row {
+    flex-direction: column;
+  }
+
+  .order-list .col-md-4 {
+    border-left: none !important;
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    padding-top: 10px;
+    text-align: left !important;
+  }
+}

@@ -238,4 +238,61 @@ router.delete("/products/:id", async (req, res) => {
   }
 });
 
+router.get("/orders", async (req, res) => {
+  try {
+    const database = await db();
+    const orders = await database
+      .collection("donhang")
+      .find({})
+      .sort({ createdAt: -1 }) 
+      .toArray();
+
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi lấy danh sách đơn hàng" });
+  }
+});
+
+router.put("/orders/:id", async (req, res) => {
+  try {
+    const database = await db();
+    const { status, thanhtoan } = req.body;
+
+    const validStatus = ["dangcho", "huy", "dathanhtoan"];
+    if (status && !validStatus.includes(status)) {
+      return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+    }
+
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (thanhtoan !== undefined) updateData.thanhtoan = thanhtoan;
+
+    const result = await database.collection("donhang").updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: updateData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    res.json({ message: "Cập nhật đơn hàng thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server khi cập nhật đơn hàng" });
+  }
+});
+
+router.delete("/orders/:id", async (req, res) => {
+  try {
+    const database = await db();
+    await database.collection("donhang").deleteOne({
+      _id: new ObjectId(req.params.id)
+    });
+
+    res.json({ message: "Đã xóa đơn hàng thành công" });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi khi xóa đơn hàng" });
+  }
+});
+
 module.exports = router;

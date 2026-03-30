@@ -48,7 +48,12 @@ export default function Dashboard() {
     rating: 0
   });
 
-  
+  const [dropdownOpen, setDropdownOpen] = useState({
+    category: false,
+    brand: false,
+    price: false
+  });
+
   const categoryNameMap = {
     "vot-cau-long": "Vợt Cầu Lông",
     "ao-cau-long": "Áo Cầu Lông",
@@ -62,7 +67,7 @@ export default function Dashboard() {
     "ao-tennis": "Áo Tennis",
     "giay-tennis": "Giày Tennis",
     "balo-tennis": "Balo Tennis",
-    "phu-kien-tennis": "Phụ Kiện Tennis",
+    "phukien-tennis": "Phụ Kiện Tennis",
     "quan-tennis": "Quần Tennis",
     "tui-tennis": "Túi Tennis"
   };  
@@ -171,7 +176,6 @@ export default function Dashboard() {
         fetchProducts();
         alert("Xóa sản phẩm thành công!");
       } catch (error) {
-        console.error(error);
         alert("Không thể xóa sản phẩm!");
       }
     }
@@ -258,7 +262,29 @@ export default function Dashboard() {
     setFilters(prev => ({ ...prev, priceRange: range }));
   };  
 
-  
+  const filteredProducts = products.filter(product => {
+    if (
+      filters.category.length > 0 &&
+      !filters.category.includes(product.category)
+    ) return false;
+
+    if (
+      filters.brand.length > 0 &&
+      !filters.brand.includes(product.brand)
+    ) return false;
+
+    if (filters.priceRange) {
+      const price = Number(product.gia);
+      const [min, max] = filters.priceRange;
+      if (price < min || price > max) return false;
+    }
+
+    if (filters.rating > 0 && product.rating < filters.rating) {
+      return false;
+    }
+
+    return true;
+  });
 
   return (  
     

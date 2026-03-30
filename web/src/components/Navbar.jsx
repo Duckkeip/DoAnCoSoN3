@@ -7,13 +7,12 @@ import "./Navbar.css";
 function Navbar() {
   const navigate = useNavigate();
 
-  // ✅ Lấy user và xử lý ID (Ưu tiên _id từ MongoDB)
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const userId = user ? (user._id || user.id) : "guest";
-  const [searchTerm, setSearchTerm] = useState(""); // State lưu từ khóa tìm kiếm
-  const [products, setProducts] = useState([]); // Lưu toàn bộ sản phẩm để search
-  const [showResults, setShowResults] = useState(false); // Ẩn/hiện box kết quả
-  const searchRef = useRef(null); // Để xử lý click ra ngoài thì đóng box
+  const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
   
   useEffect(() => {
     fetch("http://localhost:5000/api/products/sanpham")
@@ -32,7 +31,6 @@ function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 3. Logic lọc sản phẩm tại chỗ
   const liveSearchResults = products.filter(p => 
     searchTerm.trim() !== "" && 
     (p.tenSanPham.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -46,40 +44,33 @@ function Navbar() {
     }
   };
 
-
-const handleLogout = async () => {
-  if (user) {
-    try {
-      // Xóa giỏ hàng trên server nếu cần thiết khi logout
-      await fetch(`http://localhost:5000/api/cart/${userId}/clear`, {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.error("💥 Lỗi xoá giỏ hàng:", err);
+  const handleLogout = async () => {
+    if (user) {
+      try {
+        await fetch(`http://localhost:5000/api/cart/${userId}/clear`, {
+          method: "DELETE",
+        });
+      } catch (err) {
+        console.error("💥 Lỗi xoá giỏ hàng:", err);
+      }
     }
-  }
-  localStorage.removeItem("user");
-  navigate("/login");
-};
-
-
-
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   return (
     <>
       <div className="navbar">
-        {/* Logo */}
         <div className="navbar-left">
           <Link to="/">
             <img
-              src="/images/logoBMT.png" // Đường dẫn chuẩn từ thư mục public
+              src="/images/logoBMT.png"
               alt="BMT"
               className="logo"
             />
           </Link>
         </div>
 
-        {/* Navigation Links */}
         <div className="navbar-center">
           <div className="navbar-links">
             <Link to="/">TRANG CHỦ</Link>
@@ -88,7 +79,6 @@ const handleLogout = async () => {
           <div className="navbar-links has-dropdown">
             <Link to="/products" className="main-link">SẢN PHẨM </Link>
             
-            {/* MEGA MENU Đầy đủ */}
             <div className="dropdown-menu">
               <div className="dropdown-column">
                 <h4>CẦU LÔNG</h4>
@@ -119,6 +109,11 @@ const handleLogout = async () => {
               </div>
             </div>
           </div>
+
+          <div className="navbar-links">
+            <Link to="/orders" style={{ marginRight: "15px", textDecoration: "none", color: "blue" }}>ĐƠN HÀNG</Link>
+          </div>
+
           <div className="navbar-links">
             <Link to="/news">TIN TỨC</Link>
           </div>
@@ -130,69 +125,67 @@ const handleLogout = async () => {
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="navbar-right">
-        <div className="search-container" ref={searchRef}>
-          <div className="search-box">
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm..." 
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setShowResults(true);
-              }}
-              onKeyDown={handleSearch}
-              onFocus={() => setShowResults(true)}
-            />
-            <FaSearch size={18} color="gray" className="search-icon" />
-          </div>
+          <div className="search-container" ref={searchRef}>
+            <div className="search-box">
+              <input 
+                type="text" 
+                placeholder="Tìm kiếm..." 
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setShowResults(true);
+                }}
+                onKeyDown={handleSearch}
+                onFocus={() => setShowResults(true)}
+              />
+              <FaSearch size={18} color="gray" className="search-icon" />
+            </div>
 
-          {/* BOX KẾT QUẢ NHỎ (LIVE SEARCH) */}
-          {showResults && searchTerm.trim() !== "" && (
-            <div className="search-results-dropdown">
-              <div className="search-summary">
-                Tìm thấy {liveSearchResults.length} sản phẩm
-              </div>
-              
-              <div className="search-results-list">
-                {liveSearchResults.length > 0 ? (
-                  liveSearchResults.map((p) => (
-                    <div 
-                      key={p._id} 
-                      className="search-item"
-                      onClick={() => {
-                        navigate(`/detail/${p._id}`);
-                        setShowResults(false);
-                        setSearchTerm("");
-                      }}
-                    >
-                      <img src={p.anhDaiDien} alt={p.tenSanPham} />
-                      <div className="search-item-info">
-                        <p className="name">{p.tenSanPham}</p>
-                        <p className="price">{p.gia?.toLocaleString()} ₫</p>
+            {showResults && searchTerm.trim() !== "" && (
+              <div className="search-results-dropdown">
+                <div className="search-summary">
+                  Tìm thấy {liveSearchResults.length} sản phẩm
+                </div>
+                
+                <div className="search-results-list">
+                  {liveSearchResults.length > 0 ? (
+                    liveSearchResults.map((p) => (
+                      <div 
+                        key={p._id} 
+                        className="search-item"
+                        onClick={() => {
+                          navigate(`/detail/${p._id}`);
+                          setShowResults(false);
+                          setSearchTerm("");
+                        }}
+                      >
+                        <img src={p.anhDaiDien} alt={p.tenSanPham} />
+                        <div className="search-item-info">
+                          <p className="name">{p.tenSanPham}</p>
+                          <p className="price">{p.gia?.toLocaleString()} ₫</p>
+                        </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-result">Không có sản phẩm nào</div>
+                    ))
+                  ) : (
+                    <div className="no-result">Không có sản phẩm nào</div>
+                  )}
+                </div>
+
+                {liveSearchResults.length > 0 && (
+                  <div 
+                    className="search-view-all" 
+                    onClick={() => {
+                      navigate(`/products?search=${searchTerm}`);
+                      setShowResults(false);
+                    }}
+                  >
+                    Xem tất cả kết quả
+                  </div>
                 )}
               </div>
-
-              {liveSearchResults.length > 0 && (
-                <div 
-                  className="search-view-all" 
-                  onClick={() => {
-                    navigate(`/products?search=${searchTerm}`);
-                    setShowResults(false);
-                  }}
-                >
-                  Xem tất cả kết quả
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
           {!user ? (
             <Link to="/login" className="login-icon">
@@ -209,12 +202,10 @@ const handleLogout = async () => {
 
           <Link to={`/cart/${userId}`} className="cart-icon">
             <FaShoppingCart size={25} />
-            {/* Bạn có thể thêm badge số lượng sản phẩm ở đây */}
           </Link>
         </div>
       </div>
 
-      {/* Marquee Promotion */}
       <div className="sales">
         <div className="marquee-text">
           NHẬP BMT GIẢM 50K ĐƠN ĐẦU TIÊN TỪ 299K - GIAO HÀNG TOÀN QUỐC

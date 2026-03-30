@@ -7,6 +7,7 @@ const cartRoutes = require("./routes/cart");
 const payRoutes = require("./routes/pay");
 const db = require("./config/db");
 const adminRoutes = require("./routes/admin");
+const orderRoutes = require("./routes/orders");
 
 const path = require('path');
 
@@ -26,8 +27,10 @@ app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/cart", cartRoutes); // 🔹 mount route giỏ hàng
-app.use("/api/pay", payRoutes); // 🔹 mount route thanh toán
+app.use("/api/cart", cartRoutes); 
+app.use("/api/pay", payRoutes); 
+app.use("/api/order", orderRoutes);
+
 
 app.listen(5000, () => {
   console.log("Server is running on port 5000");

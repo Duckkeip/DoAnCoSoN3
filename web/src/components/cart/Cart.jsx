@@ -113,16 +113,24 @@ function Cart() {
 
   const handlePlaceOrder = async () => {
     try {
+      const savedUser = JSON.parse(localStorage.getItem("user"));
+
+      const currentUsername = savedUser?.username || "Khách hàng";
+      const currentAddress = savedUser?.address || "";
+      const currentPhone = savedUser?.SDT || "";
+
       const resOrder = await fetch(`http://localhost:5000/api/pay/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user: user_id,
+          username: currentUsername,
           chitietdonhang: cartItems,
           tongtien: total,
           thanhtoan: false,
           status: "dangcho",
-          address: "",
+          address: currentAddress,
+          SDT: currentPhone,
         }),
       });
 
